@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Xam.Plugin.TabView</id>
+    <version>1.0.0</version>
+    <authors>Sagar Dahal</authors>
+    <owners>Sagar Dahal</owners>
+    <licenseUrl>http://sagardahal.info.np</licenseUrl>
+    <projectUrl>http://sagardahal.info.np</projectUrl>
+    <iconUrl>http://sagardahal.info.np</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>TabView Control for Xamarin.Forms. Depends on CarouselView plugin by Alexander Reyes.</description>
+    <releaseNotes>First release.</releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags>xamarin plugin xamarin.forms forms tab tabview ios uwp windows android sagar dahal chaosifier</tags>
+    <dependencies>
+      <dependency id="CarouselView.FormsPlugin" version="4.4.4" />
+    </dependencies>
+  </metadata>
+  <files>
+	<file src="bin\Release\Xam.Plugin.TabView.dll" target="lib\netstandard1.4" />
+  </files>
+</package>
