@@ -14,7 +14,7 @@ namespace Xam.Plugin.TabView
     public class TabViewControl : ContentView
     {
         private StackLayout _mainContainerSL;
-        private static StackLayout _headerContainerSL;
+        private static Grid _headerContainerGrid;
         private CarouselViewControl _carouselView;
 
         private int _position = 0;
@@ -28,16 +28,16 @@ namespace Xam.Plugin.TabView
 
         public static void HeaderTextColorChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            foreach (StackLayout sl in _headerContainerSL.Children)
-            {
-                ((Label)sl.Children.First()).TextColor = (Color)newValue;
-            }
+            //foreach (StackLayout sl in _headerContainerSL.Children)
+            //{
+            //    ((Label)sl.Children.First()).TextColor = (Color)newValue;
+            //}
         }
 
         public static readonly BindableProperty WedgeRatingProperty =
-            BindableProperty.Create("HeaderTextColor", typeof(Color), typeof(TabViewControl), Color.Green, BindingMode.OneWay, null, HeaderTextColorChanged);
+            BindableProperty.Create("HeaderTextColor", typeof(Color), typeof(TabViewControl), Color.White, BindingMode.OneWay, null, HeaderTextColorChanged);
 
-        public Color HeaderBackgroundColor = Color.SkyBlue;
+        public Color HeaderBackgroundColor = Color.Black;
         public Color HeaderSelectionBarColor = Color.White;
         public double HeaderSelectionBarWidth = 50;
         public double HeaderSelectionBarThickness = 5;
@@ -55,11 +55,10 @@ namespace Xam.Plugin.TabView
 
         private void Init()
         {
-            _headerContainerSL = new StackLayout
+            _headerContainerGrid = new Grid
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
-                Orientation = StackOrientation.Horizontal,
-                BackgroundColor = Color.SkyBlue
+                BackgroundColor = HeaderBackgroundColor
             };
 
             _carouselView = new CarouselViewControl
@@ -67,8 +66,7 @@ namespace Xam.Plugin.TabView
                 HeightRequest = ContentHeightRequest,
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 ShowArrows = false,
-                ShowIndicators = false,
-                Margin = new Thickness(10,0)
+                ShowIndicators = false
             };
             _carouselView.PositionSelected += (object sender, PositionSelectedEventArgs e) =>
             {
@@ -78,8 +76,8 @@ namespace Xam.Plugin.TabView
             _mainContainerSL = new StackLayout
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
-                VerticalOptions = LayoutOptions.FillAndExpand,
-                Children = { _headerContainerSL, _carouselView }
+                Children = { _headerContainerGrid, _carouselView },
+                Spacing = 0
             };
 
             Content = _mainContainerSL;
@@ -87,8 +85,14 @@ namespace Xam.Plugin.TabView
 
         private void InitTabs()
         {
+            _headerContainerGrid.Children.Clear();
+            _headerContainerGrid.ColumnDefinitions.Clear();
+            _headerContainerGrid.RowDefinitions.Clear();
+
             for (int i = 0; i < TabItems.Count; i++)
             {
+                _headerContainerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+
                 var tab = TabItems[i];
                 tab.IsCurrent = i == _position;
 
@@ -110,7 +114,7 @@ namespace Xam.Plugin.TabView
                     Color = HeaderSelectionBarColor,
                     WidthRequest = HeaderSelectionBarWidth,
                     HeightRequest = HeaderSelectionBarThickness,
-                    HorizontalOptions = LayoutOptions.CenterAndExpand,
+                    HorizontalOptions = LayoutOptions.Center,
                     VerticalOptions = LayoutOptions.End,
                     BindingContext = tab
                 };
@@ -118,7 +122,7 @@ namespace Xam.Plugin.TabView
 
                 var headerItemSL = new StackLayout
                 {
-                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    HorizontalOptions = LayoutOptions.Fill,
                     VerticalOptions = LayoutOptions.FillAndExpand,
                     Children = { headerLabel, selectionBarBoxView }
                 };
@@ -131,7 +135,7 @@ namespace Xam.Plugin.TabView
                 };
                 headerItemSL.GestureRecognizers.Add(tapRecognizer);
 
-                _headerContainerSL.Children.Add(headerItemSL);
+                _headerContainerGrid.Children.Add(headerItemSL, i, 0);
             }
 
             _carouselView.ItemsSource = TabItems.Select(t => t.Content);
@@ -188,11 +192,7 @@ namespace Xam.Plugin.TabView
 
             protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
-                var eventHandler = this.PropertyChanged;
-                if (eventHandler != null)
-                {
-                    eventHandler(this, new PropertyChangedEventArgs(propertyName));
-                }
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
     }
