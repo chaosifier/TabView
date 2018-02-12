@@ -25,6 +25,7 @@ namespace Xam.Plugin.TabView.Sample
 
             tabView.PositionChanged += TabView_PositionChanged;
             tabView.PositionChanging += TabView_PositionChanging; ;
+            
         }
 
         private void TabView_PositionChanging(object sender, PositionChangingEventArgs e)
