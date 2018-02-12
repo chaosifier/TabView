@@ -11,6 +11,22 @@ using Xamarin.Forms;
 
 namespace Xam.Plugin.TabView.Sample
 {
+    public delegate void PositionChangingEventHandler(object sender, PositionChangingEventArgs e);
+    public delegate void PositionChangedEventHandler(object sender, PositionChangedEventArgs e);
+
+    public class PositionChangingEventArgs : EventArgs
+    {
+        public bool Canceled { get; set; }
+        public int NewPosition { get; set; }
+        public int OldPosition { get; set; }
+    }
+
+    public class PositionChangedEventArgs : EventArgs
+    {
+        public int NewPosition { get; set; }
+        public int OldPosition { get; set; }
+    }
+
     public class TabViewControl : ContentView
     {
         private StackLayout _mainContainerSL;
@@ -21,11 +37,26 @@ namespace Xam.Plugin.TabView.Sample
 
         public ObservableCollection<TabItem> ItemSource { get; set; }
 
+        public event PositionChangingEventHandler PositionChanging;
+        public event PositionChangedEventHandler PositionChanged;
+
+        protected virtual void OnPositionChanging(ref PositionChangingEventArgs e)
+        {
+            PositionChangingEventHandler handler = PositionChanging;
+            handler?.Invoke(this, e);
+        }
+
+        protected virtual void OnPositionChanged(PositionChangedEventArgs e)
+        {
+            PositionChangedEventHandler handler = PositionChanged;
+            handler?.Invoke(this, e);
+        }
+
         public TabViewControl(List<TabItem> tabItems, int selectedTabIndex = 0)
         {
             ItemSource = new ObservableCollection<TabItem>();
 
-            foreach(var tab in tabItems)
+            foreach (var tab in tabItems)
             {
                 tab.HeaderTextColor = HeaderTabTextColor;
                 tab.HeaderSelectionUnderlineColor = HeaderSelectionUnderlineColor;
@@ -42,6 +73,16 @@ namespace Xam.Plugin.TabView.Sample
 
             ItemSource.CollectionChanged += (object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) =>
             {
+                foreach (var tab in ItemSource)
+                {
+                    tab.HeaderTextColor = HeaderTabTextColor;
+                    tab.HeaderSelectionUnderlineColor = HeaderSelectionUnderlineColor;
+                    tab.HeaderSelectionUnderlineThickness = HeaderSelectionUnderlineThickness;
+                    tab.HeaderSelectionUnderlineWidth = HeaderSelectionUnderlineWidth;
+                    tab.HeaderTabTextFontSize = HeaderTabTextFontSize;
+                    tab.HeaderTabTextFontFamily = HeaderTabTextFontFamily;
+                    tab.HeaderTabTextFontAttributes = HeaderTabTextFontAttributes;
+                }
                 InitTabs();
             };
 
@@ -49,6 +90,36 @@ namespace Xam.Plugin.TabView.Sample
             InitTabs();
 
             Context = this;
+
+            _carouselView.PropertyChanged += _carouselView_PropertyChanged;
+            _carouselView.PropertyChanged += _carouselView_PropertyChanged;
+        }
+
+        private bool _supressCarouselViewPositionChangedEvent = false;
+        private void _carouselView_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(_carouselView.Position) && !_supressCarouselViewPositionChangedEvent)
+            {
+                var positionChangingArgs = new PositionChangingEventArgs()
+                {
+                    Canceled = false,
+                    NewPosition = _carouselView.Position,
+                    OldPosition = _position
+                };
+
+                OnPositionChanging(ref positionChangingArgs);
+
+                if (positionChangingArgs != null && positionChangingArgs.Canceled)
+                {
+                    _supressCarouselViewPositionChangedEvent = true;
+                    _carouselView.PositionSelected -= _carouselView_PositionSelected;
+                    _carouselView.PropertyChanged -= _carouselView_PropertyChanged;
+                    _carouselView.Position = _position;
+                    _carouselView.PositionSelected += _carouselView_PositionSelected;
+                    _carouselView.PropertyChanged += _carouselView_PropertyChanged;
+                    _supressCarouselViewPositionChangedEvent = false;
+                }
+            }
         }
 
         private void Init()
@@ -56,31 +127,37 @@ namespace Xam.Plugin.TabView.Sample
             _headerContainerGrid = new Grid
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
-                BackgroundColor = HeaderBackgroundColor
+                VerticalOptions = LayoutOptions.Start,
+                BackgroundColor = HeaderBackgroundColor,
+                MinimumHeightRequest = 50
             };
 
             _carouselView = new CarouselViewControl
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
+                VerticalOptions = LayoutOptions.EndAndExpand,
                 HeightRequest = ContentHeight,
                 ShowArrows = false,
                 ShowIndicators = false,
                 BindingContext = this
             };
 
-            _carouselView.PositionSelected += (object sender, PositionSelectedEventArgs e) =>
-            {
-                SetPosition(e.NewValue);
-            };
+            _carouselView.PositionSelected += _carouselView_PositionSelected;
 
             _mainContainerSL = new StackLayout
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
+                VerticalOptions = LayoutOptions.FillAndExpand,
                 Children = { _headerContainerGrid, _carouselView },
                 Spacing = 0
             };
 
             Content = _mainContainerSL;
+        }
+
+        private void _carouselView_PositionSelected(object sender, PositionSelectedEventArgs e)
+        {
+            SetPosition(e.NewValue);
         }
 
         private void InitTabs()
@@ -113,8 +190,8 @@ namespace Xam.Plugin.TabView.Sample
 
                 var selectionBarBoxView = new BoxView
                 {
-                    HorizontalOptions = LayoutOptions.Center,
-                    VerticalOptions = LayoutOptions.End,
+                    HorizontalOptions = LayoutOptions.CenterAndExpand,
+                    VerticalOptions = LayoutOptions.EndAndExpand,
                     BindingContext = tab,
                     HeightRequest = HeaderSelectionUnderlineThickness,
                     WidthRequest = HeaderSelectionUnderlineWidth
@@ -143,7 +220,9 @@ namespace Xam.Plugin.TabView.Sample
                 int capturedIndex = i;
                 tapRecognizer.Tapped += (object s, EventArgs e) =>
                 {
+                    _supressCarouselViewPositionChangedEvent = true;
                     SetPosition(capturedIndex);
+                    _supressCarouselViewPositionChangedEvent = false;
                 };
                 headerItemSL.GestureRecognizers.Add(tapRecognizer);
 
@@ -174,7 +253,7 @@ namespace Xam.Plugin.TabView.Sample
         }
         public static void HeaderTabTextColorChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            foreach(var tab in Context.ItemSource)
+            foreach (var tab in Context.ItemSource)
             {
                 tab.HeaderTextColor = (Color)newValue;
             }
@@ -294,15 +373,41 @@ namespace Xam.Plugin.TabView.Sample
 
         public void SetPosition(int position)
         {
+            int oldPosition = _position;
+
+            var positionChangingArgs = new PositionChangingEventArgs()
+            {
+                Canceled = false,
+                NewPosition = position,
+                OldPosition = oldPosition
+            };
+            OnPositionChanging(ref positionChangingArgs);
+
+            if (positionChangingArgs != null && positionChangingArgs.Canceled)
+            {
+                return;
+            }
+
             if (position >= 0 && position < ItemSource.Count)
             {
                 for (int i = 0; i < ItemSource.Count; i++)
                 {
                     ItemSource[i].IsCurrent = i == position;
                 }
+
+                _carouselView.PositionSelected -= _carouselView_PositionSelected;
                 _carouselView.Position = position;
+                _carouselView.PositionSelected += _carouselView_PositionSelected;
+
                 _position = position;
             }
+
+            var positionChangedArgs = new PositionChangedEventArgs()
+            {
+                NewPosition = _position,
+                OldPosition = oldPosition
+            };
+            OnPositionChanged(positionChangedArgs);
         }
 
         public void SelectNext()
@@ -343,102 +448,102 @@ namespace Xam.Plugin.TabView.Sample
                 _position = position - 1;
             }
         }
+    }
 
-        public class TabItem : ObservableBase
+    public class TabItem : ObservableBase
+    {
+        public TabItem(string headerText, View content)
         {
-            public TabItem(string headerText, View content)
-            {
-                _headerText = headerText;
-                _content = content;
-            }
-
-            private string _headerText;
-            public string HeaderText
-            {
-                get { return _headerText; }
-                set { SetProperty(ref _headerText, value); }
-            }
-
-            private View _content;
-            public View Content
-            {
-                get { return _content; }
-                set { SetProperty(ref _content, value); }
-            }
-
-            private bool _isCurrent;
-            public bool IsCurrent
-            {
-                get { return _isCurrent; }
-                set { SetProperty(ref _isCurrent, value); }
-            }
-
-            private Color _headerTextColor;
-            public Color HeaderTextColor
-            {
-                get { return _headerTextColor; }
-                set { SetProperty(ref _headerTextColor, value); }
-            }
-
-            private Color _headerSelectionUnderlineColor;
-            public Color HeaderSelectionUnderlineColor
-            {
-                get { return _headerSelectionUnderlineColor; }
-                set { SetProperty(ref _headerSelectionUnderlineColor, value); }
-            }
-
-            private double _headerSelectionUnderlineThickness;
-            public double HeaderSelectionUnderlineThickness
-            {
-                get { return _headerSelectionUnderlineThickness; }
-                set { SetProperty(ref _headerSelectionUnderlineThickness, value); }
-            }
-
-            private double _headerSelectionUnderlineWidth;
-            public double HeaderSelectionUnderlineWidth
-            {
-                get { return _headerSelectionUnderlineWidth; }
-                set { SetProperty(ref _headerSelectionUnderlineWidth, value); }
-            }
-
-            private double _headerTabTextFontSize;
-            public double HeaderTabTextFontSize
-            {
-                get { return _headerTabTextFontSize; }
-                set { SetProperty(ref _headerTabTextFontSize, value); }
-            }
-
-            private string _headerTabTextFontFamily;
-            public string HeaderTabTextFontFamily
-            {
-                get { return _headerTabTextFontFamily; }
-                set { SetProperty(ref _headerTabTextFontFamily, value); }
-            }
-
-            private FontAttributes _headerTabTextFontAttributes;
-            public FontAttributes HeaderTabTextFontAttributes
-            {
-                get { return _headerTabTextFontAttributes; }
-                set { SetProperty(ref _headerTabTextFontAttributes, value); }
-            }
+            _headerText = headerText;
+            _content = content;
         }
 
-        public class ObservableBase : INotifyPropertyChanged
+        private string _headerText;
+        public string HeaderText
         {
-            public event PropertyChangedEventHandler PropertyChanged;
-            protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] String propertyName = null)
-            {
-                if (object.Equals(storage, value)) return false;
+            get { return _headerText; }
+            set { SetProperty(ref _headerText, value); }
+        }
 
-                storage = value;
-                this.OnPropertyChanged(propertyName);
-                return true;
-            }
+        private View _content;
+        public View Content
+        {
+            get { return _content; }
+            set { SetProperty(ref _content, value); }
+        }
 
-            protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            {
-                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
+        private bool _isCurrent;
+        public bool IsCurrent
+        {
+            get { return _isCurrent; }
+            set { SetProperty(ref _isCurrent, value); }
+        }
+
+        private Color _headerTextColor;
+        public Color HeaderTextColor
+        {
+            get { return _headerTextColor; }
+            set { SetProperty(ref _headerTextColor, value); }
+        }
+
+        private Color _headerSelectionUnderlineColor;
+        public Color HeaderSelectionUnderlineColor
+        {
+            get { return _headerSelectionUnderlineColor; }
+            set { SetProperty(ref _headerSelectionUnderlineColor, value); }
+        }
+
+        private double _headerSelectionUnderlineThickness;
+        public double HeaderSelectionUnderlineThickness
+        {
+            get { return _headerSelectionUnderlineThickness; }
+            set { SetProperty(ref _headerSelectionUnderlineThickness, value); }
+        }
+
+        private double _headerSelectionUnderlineWidth;
+        public double HeaderSelectionUnderlineWidth
+        {
+            get { return _headerSelectionUnderlineWidth; }
+            set { SetProperty(ref _headerSelectionUnderlineWidth, value); }
+        }
+
+        private double _headerTabTextFontSize;
+        public double HeaderTabTextFontSize
+        {
+            get { return _headerTabTextFontSize; }
+            set { SetProperty(ref _headerTabTextFontSize, value); }
+        }
+
+        private string _headerTabTextFontFamily;
+        public string HeaderTabTextFontFamily
+        {
+            get { return _headerTabTextFontFamily; }
+            set { SetProperty(ref _headerTabTextFontFamily, value); }
+        }
+
+        private FontAttributes _headerTabTextFontAttributes;
+        public FontAttributes HeaderTabTextFontAttributes
+        {
+            get { return _headerTabTextFontAttributes; }
+            set { SetProperty(ref _headerTabTextFontAttributes, value); }
+        }
+    }
+
+    public class ObservableBase : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] String propertyName = null)
+        {
+            if (object.Equals(storage, value)) return false;
+
+            storage = value;
+            this.OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

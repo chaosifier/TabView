@@ -14,14 +14,27 @@ namespace Xam.Plugin.TabView.Sample
         {
             InitializeComponent();
 
-            tabView = new TabViewControl(new List<TabViewControl.TabItem>()
+            tabView = new TabViewControl(new List<TabItem>()
             {
-                new TabViewControl.TabItem("Tab 1", new Label{Text = "Tab 1", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Red}),
-                new TabViewControl.TabItem("Tab 2", new Label{Text = "Tab 2", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Green}),
-                new TabViewControl.TabItem("Tab 3", new Label{Text = "Tab 3", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Blue}),
+                new TabItem("Tab 1", new Label{Text = "Tab 1", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Red}),
+                new TabItem("Tab 2", new Label{Text = "Tab 2", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Green}),
+                new TabItem("Tab 3", new Label{Text = "Tab 3", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Blue}),
             });
-
+            tabView.VerticalOptions = LayoutOptions.FillAndExpand;
             theSl.Children.Add(tabView);
+
+            tabView.PositionChanged += TabView_PositionChanged;
+            tabView.PositionChanging += TabView_PositionChanging; ;
+        }
+
+        private void TabView_PositionChanging(object sender, PositionChangingEventArgs e)
+        {
+            
+        }
+
+        private void TabView_PositionChanged(object sender, PositionChangedEventArgs e)
+        {
+            
         }
 
         private void Button_Next(object sender, EventArgs e)
@@ -46,7 +59,7 @@ namespace Xam.Plugin.TabView.Sample
 
         private void Button_AddTab(object sender, EventArgs e)
         {
-            tabView.AddTab(new TabViewControl.TabItem("New", new Label { Text = "New", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Red }));
+            tabView.AddTab(new TabItem("New", new Label { Text = "New", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Red }));
         }
 
         private void Button_RemoveLastTab(object sender, EventArgs e)
@@ -56,12 +69,12 @@ namespace Xam.Plugin.TabView.Sample
 
         private void Button_ChangeTextColor(object sender, EventArgs e)
         {
-            tabView.HeaderTabTextColor = Color.Green;
+            tabView.HeaderTabTextColor = tabView.HeaderTabTextColor == Color.LightGreen ? Color.White : Color.LightGreen;
         }
 
         private void Button_ChangeSelectionUnderlineColor(object sender, EventArgs e)
         {
-            tabView.HeaderSelectionUnderlineColor = Color.Yellow;
+            tabView.HeaderSelectionUnderlineColor = tabView.HeaderSelectionUnderlineColor == Color.Yellow ? Color.White : Color.Yellow;
         }
 
         private void Button_ChangeSelectionUnderlineThickness(object sender, EventArgs e)
@@ -86,7 +99,7 @@ namespace Xam.Plugin.TabView.Sample
 
         private void Button_ChangeTabTextFontFamily(object sender, EventArgs e)
         {
-            tabView.HeaderTabTextFontFamily = tabView.HeaderTabTextFontFamily == "Droid Sans Mono" ? "MarkerFelt - Thin" : "Droid Sans Mono";
+            tabView.HeaderTabTextFontFamily = tabView.HeaderTabTextFontFamily == "Droid Sans Mono" ? "Comic Sans MS" : "Droid Sans Mono";
         }
     }
 }
