@@ -2,22 +2,27 @@
 <package >
   <metadata>
     <id>Xam.Plugin.TabView</id>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
     <authors>Sagar Dahal</authors>
     <owners>Sagar Dahal</owners>
-    <licenseUrl>http://sagardahal.info.np</licenseUrl>
-    <projectUrl>http://sagardahal.info.np</projectUrl>
-    <iconUrl>http://sagardahal.info.np</iconUrl>
+    <licenseUrl>https://github.com/chaosifier/TabView/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/chaosifier/TabView</projectUrl>
+    <iconUrl>http://sagardahal.info.np/images/sd.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>TabView Control for Xamarin.Forms. Depends on CarouselView plugin by Alexander Reyes.</description>
-    <releaseNotes>First release.</releaseNotes>
+    <description>TabView Control for Xamarin.Forms.</description>
+    <releaseNotes>
+	Fixed minor UI issues.
+	Added several common bindable properties, events and functions.
+	Bug fixes.
+	</releaseNotes>
     <copyright>Copyright 2018</copyright>
-    <tags>xamarin plugin xamarin.forms forms tab tabview ios uwp windows android sagar dahal chaosifier</tags>
+    <tags>xamarin xam plugin xamarin.forms forms tab tabview ios uwp windows android chaosifier</tags>	
     <dependencies>
-      <dependency id="CarouselView.FormsPlugin" version="4.4.4" />
+      <dependency id="CarouselView.FormsPlugin" version="5.0.0" />
     </dependencies>
   </metadata>
   <files>
-	<file src="bin\Release\Xam.Plugin.TabView.dll" target="lib\netstandard1.4" />
+    <file src="bin\Release\Xam.Plugin.TabView.dll" target="lib\netstandard2.0\Xam.Plugin.TabView.dll" />
+    <file src="bin\Release\Xam.Plugin.TabView.dll" target="lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid10+Xamarin.iOS10\Xam.Plugin.TabView.dll" />
   </files>
 </package>
