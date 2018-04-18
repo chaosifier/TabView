@@ -2,18 +2,18 @@
 <package >
   <metadata>
     <id>Xam.Plugin.TabView</id>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <authors>Sagar Dahal</authors>
     <owners>Sagar Dahal</owners>
     <licenseUrl>https://github.com/chaosifier/TabView/blob/master/LICENSE</licenseUrl>
+	<title>Xam.Plugin.TabView</title>
+	<summary>TabView Control for Xamarin.Forms.</summary>
     <projectUrl>https://github.com/chaosifier/TabView</projectUrl>
     <iconUrl>http://sagardahal.info.np/images/sd.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>TabView Control for Xamarin.Forms.</description>
     <releaseNotes>
-	Fixed minor UI issues.
-	Added several common bindable properties, events and functions.
-	Bug fixes.
+	Fixed content not scaling to TabView's height bug.
 	</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>xamarin xam plugin xamarin.forms forms tab tabview ios uwp windows android chaosifier</tags>	
