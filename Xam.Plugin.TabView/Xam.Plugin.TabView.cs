@@ -135,7 +135,7 @@ namespace Xam.Plugin.TabView
             _carouselView = new CarouselViewControl
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
-                VerticalOptions = LayoutOptions.EndAndExpand,
+                VerticalOptions = LayoutOptions.FillAndExpand,
                 HeightRequest = ContentHeight,
                 ShowArrows = false,
                 ShowIndicators = false,
