@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using CarouselView.FormsPlugin.Android;
 
 namespace TabViewSample.Droid
 {
@@ -20,6 +21,10 @@ namespace TabViewSample.Droid
             base.OnCreate(bundle);
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
+
+            // Initialize CarouselView
+            CarouselViewRenderer.Init();
+
             LoadApplication(new App());
         }
     }
