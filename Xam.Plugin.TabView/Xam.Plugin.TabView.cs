@@ -52,7 +52,17 @@ namespace Xam.Plugin.TabView
             handler?.Invoke(this, e);
         }
 
-        public TabViewControl(List<TabItem> tabItems, int selectedTabIndex = 0)
+        public TabViewControl()
+        {
+            //Parameterless constructor required for xaml instantiation.
+        }
+        
+        public TabViewControl(IList<TabItem> tabItems, int selectedTabIndex = 0)
+        {
+            Initialize(tabItems, selectedTabIndex);
+        }
+
+        private void Initialize(IList<TabItem> tabItems, int selectedTabIndex = 0)
         {
             ItemSource = new ObservableCollection<TabItem>();
 
@@ -154,6 +164,21 @@ namespace Xam.Plugin.TabView
 
             Content = _mainContainerSL;
         }
+
+		protected override void OnBindingContextChanged()
+		{
+			base.OnBindingContextChanged();
+			if (BindingContext != null)
+			{
+				foreach (var tab in ItemSource)
+				{
+					if (tab is TabItem view)
+					{
+						view.Content.BindingContext = BindingContext;
+					}
+				}
+			}
+		}
 
         private void _carouselView_PositionSelected(object sender, PositionSelectedEventArgs e)
         {
@@ -371,6 +396,22 @@ namespace Xam.Plugin.TabView
         public readonly BindableProperty HeaderTabTextFontAttributesProperty = BindableProperty.Create(nameof(HeaderTabTextFontAttributes), typeof(FontAttributes), typeof(TabViewControl), FontAttributes.None, BindingMode.Default, null, HeaderTabTextFontAttributesChanged);
         #endregion
 
+		#region TabItems
+        public static BindableProperty TabItemsProperty = BindableProperty.Create(nameof(TabItems), typeof(IList<TabItem>), typeof(TabViewControl), null, propertyChanged:OnTabItemsChanged);
+        private static void OnTabItemsChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is TabViewControl tabControl)
+            {
+                tabControl.Initialize(tabControl.TabItems);
+            }
+        }
+        public IList<TabItem> TabItems
+        {
+            get => (IList<TabItem>)GetValue(TabItemsProperty);
+            set { SetValue(TabItemsProperty, value); }
+        }
+        #endregion
+
         public void SetPosition(int position)
         {
             int oldPosition = _position;
@@ -452,6 +493,11 @@ namespace Xam.Plugin.TabView
 
     public class TabItem : ObservableBase
     {
+        public TabItem()
+        {
+            //Parameterless constructor required for xaml instantiation.
+        }
+
         public TabItem(string headerText, View content)
         {
             _headerText = headerText;
