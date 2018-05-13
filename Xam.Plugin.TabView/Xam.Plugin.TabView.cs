@@ -191,6 +191,8 @@ namespace Xam.Plugin.TabView
             _headerContainerGrid.ColumnDefinitions.Clear();
             _headerContainerGrid.RowDefinitions.Clear();
 
+            var tabSize = (TabSizeOption.IsAbsolute && TabSizeOption.Value.Equals(0)) ? new GridLength(1, GridUnitType.Star) : TabSizeOption;
+
             for (int i = 0; i < ItemSource.Count; i++)
             {
                 _headerContainerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
@@ -411,6 +413,28 @@ namespace Xam.Plugin.TabView
             set { SetValue(TabItemsProperty, value); }
         }
         #endregion
+
+        #region TabSizeOption
+		public static BindableProperty TabSizeOptionProperty = BindableProperty.Create(nameof(TabSizeOption), typeof(GridLength), typeof(TabViewControl), default(GridLength), propertyChanged: OnTabSizeOptionChanged);
+		private static void OnTabSizeOptionChanged(BindableObject bindable, object oldValue, object newValue)
+		{
+			if (bindable is TabViewControl tabViewControl)
+			{
+				if (tabViewControl._headerContainerGrid != null && tabViewControl.ItemSource != null)
+				{
+					foreach (var tabContainer in tabViewControl._headerContainerGrid.ColumnDefinitions)
+					{
+						tabContainer.Width = (GridLength)newValue;
+					}
+				}
+			}
+		}
+		public GridLength TabSizeOption
+		{
+			get => (GridLength)GetValue(TabSizeOptionProperty);
+			set { SetValue(TabSizeOptionProperty, value); }
+		}
+		#endregion
 
         public void SetPosition(int position)
         {
