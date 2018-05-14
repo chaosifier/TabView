@@ -52,7 +52,17 @@ namespace Xam.Plugin.TabView
             handler?.Invoke(this, e);
         }
 
-        public TabViewControl(List<TabItem> tabItems, int selectedTabIndex = 0)
+        public TabViewControl()
+        {
+            //Parameterless constructor required for xaml instantiation.
+        }
+        
+        public TabViewControl(IList<TabItem> tabItems, int selectedTabIndex = 0)
+        {
+            Initialize(tabItems, selectedTabIndex);
+        }
+
+        private void Initialize(IList<TabItem> tabItems, int selectedTabIndex = 0)
         {
             ItemSource = new ObservableCollection<TabItem>();
 
@@ -155,6 +165,21 @@ namespace Xam.Plugin.TabView
             Content = _mainContainerSL;
         }
 
+		protected override void OnBindingContextChanged()
+		{
+			base.OnBindingContextChanged();
+			if (BindingContext != null)
+			{
+				foreach (var tab in ItemSource)
+				{
+					if (tab is TabItem view)
+					{
+						view.Content.BindingContext = BindingContext;
+					}
+				}
+			}
+		}
+
         private void _carouselView_PositionSelected(object sender, PositionSelectedEventArgs e)
         {
             SetPosition(e.NewValue);
@@ -165,6 +190,8 @@ namespace Xam.Plugin.TabView
             _headerContainerGrid.Children.Clear();
             _headerContainerGrid.ColumnDefinitions.Clear();
             _headerContainerGrid.RowDefinitions.Clear();
+
+            var tabSize = (TabSizeOption.IsAbsolute && TabSizeOption.Value.Equals(0)) ? new GridLength(1, GridUnitType.Star) : TabSizeOption;
 
             for (int i = 0; i < ItemSource.Count; i++)
             {
@@ -371,6 +398,44 @@ namespace Xam.Plugin.TabView
         public readonly BindableProperty HeaderTabTextFontAttributesProperty = BindableProperty.Create(nameof(HeaderTabTextFontAttributes), typeof(FontAttributes), typeof(TabViewControl), FontAttributes.None, BindingMode.Default, null, HeaderTabTextFontAttributesChanged);
         #endregion
 
+		#region TabItems
+        public static BindableProperty TabItemsProperty = BindableProperty.Create(nameof(TabItems), typeof(IList<TabItem>), typeof(TabViewControl), null, propertyChanged:OnTabItemsChanged);
+        private static void OnTabItemsChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is TabViewControl tabControl)
+            {
+                tabControl.Initialize(tabControl.TabItems);
+            }
+        }
+        public IList<TabItem> TabItems
+        {
+            get => (IList<TabItem>)GetValue(TabItemsProperty);
+            set { SetValue(TabItemsProperty, value); }
+        }
+        #endregion
+
+        #region TabSizeOption
+		public static BindableProperty TabSizeOptionProperty = BindableProperty.Create(nameof(TabSizeOption), typeof(GridLength), typeof(TabViewControl), default(GridLength), propertyChanged: OnTabSizeOptionChanged);
+		private static void OnTabSizeOptionChanged(BindableObject bindable, object oldValue, object newValue)
+		{
+			if (bindable is TabViewControl tabViewControl)
+			{
+				if (tabViewControl._headerContainerGrid != null && tabViewControl.ItemSource != null)
+				{
+					foreach (var tabContainer in tabViewControl._headerContainerGrid.ColumnDefinitions)
+					{
+						tabContainer.Width = (GridLength)newValue;
+					}
+				}
+			}
+		}
+		public GridLength TabSizeOption
+		{
+			get => (GridLength)GetValue(TabSizeOptionProperty);
+			set { SetValue(TabSizeOptionProperty, value); }
+		}
+		#endregion
+
         public void SetPosition(int position)
         {
             int oldPosition = _position;
@@ -452,6 +517,11 @@ namespace Xam.Plugin.TabView
 
     public class TabItem : ObservableBase
     {
+        public TabItem()
+        {
+            //Parameterless constructor required for xaml instantiation.
+        }
+
         public TabItem(string headerText, View content)
         {
             _headerText = headerText;
