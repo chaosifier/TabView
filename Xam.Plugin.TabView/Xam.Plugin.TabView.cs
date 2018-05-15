@@ -310,7 +310,7 @@ namespace Xam.Plugin.TabView
             get { return (Color)GetValue(HeaderSelectionUnderlineColorProperty); }
             set { SetValue(HeaderSelectionUnderlineColorProperty, value); }
         }
-        public static void HeaderSelectionUnderlineColorChanged(BindableObject bindable, object oldValue, object newValue)
+        private static void HeaderSelectionUnderlineColorChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is TabViewControl tabViewControl && tabViewControl.ItemSource != null)
             {
