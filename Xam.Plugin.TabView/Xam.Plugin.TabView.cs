@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 using Xamarin.Forms;
 
@@ -32,7 +31,6 @@ namespace Xam.Plugin.TabView
         private StackLayout _mainContainerSL;
         private Grid _headerContainerGrid;
         private CarouselViewControl _carouselView;
-        private int _position = 0;
 
         public ObservableCollection<TabItem> ItemSource { get; set; }
 
@@ -64,36 +62,39 @@ namespace Xam.Plugin.TabView
         private void Initialize(IList<TabItem> tabItems, int selectedTabIndex = 0)
         {
             ItemSource = new ObservableCollection<TabItem>();
-            void setTabProperties()
+            void setupTab(TabItem tab)
             {
-                foreach (var tab in tabItems)
+                tab.HeaderTextColor = HeaderTabTextColor;
+                tab.HeaderSelectionUnderlineColor = HeaderSelectionUnderlineColor;
+                tab.HeaderSelectionUnderlineThickness = HeaderSelectionUnderlineThickness;
+                if (tab.HeaderSelectionUnderlineWidth > 0)
                 {
-                    tab.HeaderTextColor = HeaderTabTextColor;
-                    tab.HeaderSelectionUnderlineColor = HeaderSelectionUnderlineColor;
-                    tab.HeaderSelectionUnderlineThickness = HeaderSelectionUnderlineThickness;
-                    if (tab.HeaderSelectionUnderlineWidth > 0)
-                    {
-                        tab.HeaderSelectionUnderlineWidth = HeaderSelectionUnderlineWidth;
-                    }
-                    tab.HeaderTabTextFontSize = HeaderTabTextFontSize;
-                    tab.HeaderTabTextFontFamily = HeaderTabTextFontFamily;
-                    tab.HeaderTabTextFontAttributes = HeaderTabTextFontAttributes;
-
-                    ItemSource.Add(tab);
+                    tab.HeaderSelectionUnderlineWidth = HeaderSelectionUnderlineWidth;
                 }
+                tab.HeaderTabTextFontSize = HeaderTabTextFontSize;
+                tab.HeaderTabTextFontFamily = HeaderTabTextFontFamily;
+                tab.HeaderTabTextFontAttributes = HeaderTabTextFontAttributes;
             }
-            setTabProperties();
+            foreach (var tab in tabItems)
+            {
+                
+                setupTab(tab);
+                ItemSource.Add(tab);
+            }
 
             Init();
 
             ItemSource.CollectionChanged += (object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) =>
             {
-                setTabProperties();
+                foreach (var tab in ItemSource)
+                {
+                    setupTab(tab);
+                }
                 InitTabs();
             };
 
-            _position = selectedTabIndex;
             InitTabs();
+            SetPosition(selectedTabIndex, true);
 
             _carouselView.PropertyChanged += _carouselView_PropertyChanged;
         }
@@ -107,7 +108,7 @@ namespace Xam.Plugin.TabView
                 {
                     Canceled = false,
                     NewPosition = _carouselView.Position,
-                    OldPosition = _position
+                    OldPosition = SelectedTabIndex
                 };
 
                 OnPositionChanging(ref positionChangingArgs);
@@ -117,7 +118,7 @@ namespace Xam.Plugin.TabView
                     _supressCarouselViewPositionChangedEvent = true;
                     _carouselView.PositionSelected -= _carouselView_PositionSelected;
                     _carouselView.PropertyChanged -= _carouselView_PropertyChanged;
-                    _carouselView.Position = _position;
+                    _carouselView.Position = SelectedTabIndex;
                     _carouselView.PositionSelected += _carouselView_PositionSelected;
                     _carouselView.PropertyChanged += _carouselView_PropertyChanged;
                     _supressCarouselViewPositionChangedEvent = false;
@@ -144,8 +145,6 @@ namespace Xam.Plugin.TabView
                 ShowIndicators = false,
                 BindingContext = this
             };
-
-            _carouselView.PositionSelected += _carouselView_PositionSelected;
 
             _mainContainerSL = new StackLayout
             {
@@ -188,10 +187,10 @@ namespace Xam.Plugin.TabView
 
             for (int i = 0; i < ItemSource.Count; i++)
             {
-                _headerContainerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = tabSize });
+                _headerContainerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = tabSize });
 
                 var tab = ItemSource[i];
-                tab.IsCurrent = i == _position;
+                tab.IsCurrent = i == SelectedTabIndex;
 
                 var headerLabel = new Label
                 {
@@ -218,14 +217,18 @@ namespace Xam.Plugin.TabView
                 selectionBarBoxView.HorizontalOptions = tab.HeaderSelectionUnderlineWidth > 0 ? LayoutOptions.CenterAndExpand : LayoutOptions.FillAndExpand;
                 selectionBarBoxView.SetBinding(BoxView.IsVisibleProperty, nameof(TabItem.IsCurrent));
                 selectionBarBoxView.SetBinding(BoxView.ColorProperty, nameof(TabItem.HeaderSelectionUnderlineColor));
-                selectionBarBoxView.SetBinding(BoxView.WidthProperty, nameof(TabItem.HeaderSelectionUnderlineWidth));
-                selectionBarBoxView.SetBinding(BoxView.HeightProperty, nameof(TabItem.HeaderSelectionUnderlineThickness));
+                selectionBarBoxView.SetBinding(BoxView.WidthRequestProperty, nameof(TabItem.HeaderSelectionUnderlineWidth));
+                selectionBarBoxView.SetBinding(BoxView.HeightRequestProperty, nameof(TabItem.HeaderSelectionUnderlineThickness));
 
                 selectionBarBoxView.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>
                 {
                     if (e.PropertyName == nameof(TabItem.IsCurrent))
                     {
                         SetPosition(ItemSource.IndexOf((TabItem)((BoxView)sender).BindingContext));
+                    }
+                    if (e.PropertyName == nameof(WidthRequest))
+                    {
+                        selectionBarBoxView.HorizontalOptions = tab.HeaderSelectionUnderlineWidth > 0 ? LayoutOptions.CenterAndExpand : LayoutOptions.FillAndExpand;
                     }
                 };
 
@@ -424,7 +427,7 @@ namespace Xam.Plugin.TabView
         {
             if (bindable is TabViewControl tabViewControl)
             {
-                tabViewControl.Initialize(tabViewControl.TabItems);
+                tabViewControl.Initialize(tabViewControl.TabItems, tabViewControl.SelectedTabIndex);
             }
         }
         public IList<TabItem> TabItems
@@ -453,13 +456,29 @@ namespace Xam.Plugin.TabView
         }
         #endregion
 
-        public void SetPosition(int position)
+        #region SelectedTabIndex
+        public static BindableProperty SelectedTabIndexProperty = BindableProperty.Create(nameof(SelectedTabIndex), typeof(int), typeof(TabViewControl), 0, propertyChanged: OnSelectedTabIndexChanged);
+        private static void OnSelectedTabIndexChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (_position == position)
+            if (bindable is TabViewControl tabViewControl && tabViewControl.ItemSource != null)
+            {
+                tabViewControl.SetPosition((int)newValue);
+            }
+        }
+        public int SelectedTabIndex
+        {
+            get => (int)GetValue(SelectedTabIndexProperty);
+            set { SetValue(SelectedTabIndexProperty, value); }
+        }
+        #endregion
+
+        public void SetPosition(int position, bool initialRun = false)
+        {
+            if (SelectedTabIndex == position && !initialRun)
             {
                 return;
             }
-            int oldPosition = _position;
+            int oldPosition = SelectedTabIndex;
 
             var positionChangingArgs = new PositionChangingEventArgs()
             {
@@ -485,12 +504,12 @@ namespace Xam.Plugin.TabView
                 _carouselView.Position = position;
                 _carouselView.PositionSelected += _carouselView_PositionSelected;
 
-                _position = position;
+                SelectedTabIndex = position;
             }
 
             var positionChangedArgs = new PositionChangedEventArgs()
             {
-                NewPosition = _position,
+                NewPosition = SelectedTabIndex,
                 OldPosition = oldPosition
             };
             OnPositionChanged(positionChangedArgs);
@@ -498,12 +517,12 @@ namespace Xam.Plugin.TabView
 
         public void SelectNext()
         {
-            SetPosition(_position + 1);
+            SetPosition(SelectedTabIndex + 1);
         }
 
         public void SelectPrevious()
         {
-            SetPosition(_position - 1);
+            SetPosition(SelectedTabIndex - 1);
         }
 
         public void SelectFirst()
@@ -518,11 +537,11 @@ namespace Xam.Plugin.TabView
 
         public void AddTab(TabItem tab, int position = 0, bool selectNewPosition = false)
         {
+            ItemSource.Insert(position, tab);
             if (selectNewPosition)
             {
-                _position = position;
+                SelectedTabIndex = position;
             }
-            ItemSource.Insert(position, tab);
         }
 
         public void RemoveTab(int position = 0)
@@ -531,7 +550,7 @@ namespace Xam.Plugin.TabView
 
             if (position > 0)
             {
-                _position = position - 1;
+                SelectedTabIndex = position - 1;
             }
         }
     }
