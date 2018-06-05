@@ -56,7 +56,7 @@ namespace Xam.Plugin.TabView
         {
             //Parameterless constructor required for xaml instantiation.
         }
-        
+
         public TabViewControl(IList<TabItem> tabItems, int selectedTabIndex = 0)
         {
             Initialize(tabItems, selectedTabIndex);
@@ -165,20 +165,20 @@ namespace Xam.Plugin.TabView
             Content = _mainContainerSL;
         }
 
-		protected override void OnBindingContextChanged()
-		{
-			base.OnBindingContextChanged();
-			if (BindingContext != null)
-			{
-				foreach (var tab in ItemSource)
-				{
-					if (tab is TabItem view)
-					{
-						view.Content.BindingContext = BindingContext;
-					}
-				}
-			}
-		}
+        protected override void OnBindingContextChanged()
+        {
+            base.OnBindingContextChanged();
+            if (BindingContext != null)
+            {
+                foreach (var tab in ItemSource)
+                {
+                    if (tab is TabItem view)
+                    {
+                        view.Content.BindingContext = BindingContext;
+                    }
+                }
+            }
+        }
 
         private void _carouselView_PositionSelected(object sender, PositionSelectedEventArgs e)
         {
@@ -199,10 +199,20 @@ namespace Xam.Plugin.TabView
 
                 var tab = ItemSource[i];
                 tab.IsCurrent = i == _position;
+                var headerIcon = new Image
+                {
+                    Margin = new Thickness(0, 20, 0, 0),
+                    BindingContext = tab,
+                    HorizontalOptions = LayoutOptions.CenterAndExpand,
+                    VerticalOptions = LayoutOptions.Center,
+                    WidthRequest = 16,
+                    HeightRequest = 16
+                };
+                headerIcon.SetBinding(Image.SourceProperty, "HeaderIcon");
 
                 var headerLabel = new Label
                 {
-                    Margin = new Thickness(5, 10, 5, 0),
+                    Margin = new Thickness(5, 0, 5, 0),
                     BindingContext = tab,
                     VerticalTextAlignment = TextAlignment.Start,
                     HorizontalTextAlignment = TextAlignment.Center,
@@ -240,7 +250,7 @@ namespace Xam.Plugin.TabView
                 {
                     HorizontalOptions = LayoutOptions.Fill,
                     VerticalOptions = LayoutOptions.FillAndExpand,
-                    Children = { headerLabel, selectionBarBoxView }
+                    Children = { headerIcon, headerLabel, selectionBarBoxView }
                 };
 
                 var tapRecognizer = new TapGestureRecognizer();
@@ -398,8 +408,9 @@ namespace Xam.Plugin.TabView
         public readonly BindableProperty HeaderTabTextFontAttributesProperty = BindableProperty.Create(nameof(HeaderTabTextFontAttributes), typeof(FontAttributes), typeof(TabViewControl), FontAttributes.None, BindingMode.Default, null, HeaderTabTextFontAttributesChanged);
         #endregion
 
-		#region TabItems
-        public static BindableProperty TabItemsProperty = BindableProperty.Create(nameof(TabItems), typeof(IList<TabItem>), typeof(TabViewControl), null, propertyChanged:OnTabItemsChanged);
+       
+        #region TabItems
+        public static BindableProperty TabItemsProperty = BindableProperty.Create(nameof(TabItems), typeof(IList<TabItem>), typeof(TabViewControl), null, propertyChanged: OnTabItemsChanged);
         private static void OnTabItemsChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is TabViewControl tabControl)
@@ -415,26 +426,26 @@ namespace Xam.Plugin.TabView
         #endregion
 
         #region TabSizeOption
-		public static BindableProperty TabSizeOptionProperty = BindableProperty.Create(nameof(TabSizeOption), typeof(GridLength), typeof(TabViewControl), default(GridLength), propertyChanged: OnTabSizeOptionChanged);
-		private static void OnTabSizeOptionChanged(BindableObject bindable, object oldValue, object newValue)
-		{
-			if (bindable is TabViewControl tabViewControl)
-			{
-				if (tabViewControl._headerContainerGrid != null && tabViewControl.ItemSource != null)
-				{
-					foreach (var tabContainer in tabViewControl._headerContainerGrid.ColumnDefinitions)
-					{
-						tabContainer.Width = (GridLength)newValue;
-					}
-				}
-			}
-		}
-		public GridLength TabSizeOption
-		{
-			get => (GridLength)GetValue(TabSizeOptionProperty);
-			set { SetValue(TabSizeOptionProperty, value); }
-		}
-		#endregion
+        public static BindableProperty TabSizeOptionProperty = BindableProperty.Create(nameof(TabSizeOption), typeof(GridLength), typeof(TabViewControl), default(GridLength), propertyChanged: OnTabSizeOptionChanged);
+        private static void OnTabSizeOptionChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is TabViewControl tabViewControl)
+            {
+                if (tabViewControl._headerContainerGrid != null && tabViewControl.ItemSource != null)
+                {
+                    foreach (var tabContainer in tabViewControl._headerContainerGrid.ColumnDefinitions)
+                    {
+                        tabContainer.Width = (GridLength)newValue;
+                    }
+                }
+            }
+        }
+        public GridLength TabSizeOption
+        {
+            get => (GridLength)GetValue(TabSizeOptionProperty);
+            set { SetValue(TabSizeOptionProperty, value); }
+        }
+        #endregion
 
         public void SetPosition(int position)
         {
@@ -528,6 +539,13 @@ namespace Xam.Plugin.TabView
             _content = content;
         }
 
+        public TabItem(string headerText, View content, ImageSource headerIcon)
+        {
+            _headerText = headerText;
+            _content = content;
+            _headerIcon = headerIcon;
+        }
+
         private string _headerText;
         public string HeaderText
         {
@@ -596,6 +614,13 @@ namespace Xam.Plugin.TabView
         {
             get { return _headerTabTextFontAttributes; }
             set { SetProperty(ref _headerTabTextFontAttributes, value); }
+        }
+
+        private ImageSource _headerIcon;
+        public ImageSource HeaderIcon
+        {
+            get { return _headerIcon; }
+            set { SetProperty(ref _headerIcon, value); }
         }
     }
 
