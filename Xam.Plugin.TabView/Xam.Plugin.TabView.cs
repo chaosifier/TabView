@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 using Xamarin.Forms;
 
@@ -26,13 +25,19 @@ namespace Xam.Plugin.TabView
         public int OldPosition { get; set; }
     }
 
+    static class TabDefaults
+    {
+        public static readonly Color DefaultColor = Color.White;
+        public const double DefaultThickness = 5;
+        public const double DefaultTextSize = 14;
+    }
+
     public class TabViewControl : ContentView
     {
         private StackLayout _mainContainerSL;
         private Grid _headerContainerGrid;
         private CarouselViewControl _carouselView;
 
-        public ObservableCollection<TabItem> ItemSource { get; set; }
 
         public event PositionChangingEventHandler PositionChanging;
         public event PositionChangedEventHandler PositionChanged;
@@ -52,54 +57,57 @@ namespace Xam.Plugin.TabView
         public TabViewControl()
         {
             //Parameterless constructor required for xaml instantiation.
+            Init();
         }
 
         public TabViewControl(IList<TabItem> tabItems, int selectedTabIndex = 0)
         {
-            Initialize(tabItems, selectedTabIndex);
-        }
-
-        private void Initialize(IList<TabItem> tabItems, int selectedTabIndex = 0)
-        {
-            ItemSource = new ObservableCollection<TabItem>();
-            void setupTab(TabItem tab)
-            {
-                tab.HeaderTextColor = HeaderTabTextColor;
-                tab.HeaderSelectionUnderlineColor = HeaderSelectionUnderlineColor;
-                tab.HeaderSelectionUnderlineThickness = HeaderSelectionUnderlineThickness;
-                if (tab.HeaderSelectionUnderlineWidth > 0)
-                {
-                    tab.HeaderSelectionUnderlineWidth = HeaderSelectionUnderlineWidth;
-                }
-                tab.HeaderTabTextFontSize = HeaderTabTextFontSize;
-                tab.HeaderTabTextFontFamily = HeaderTabTextFontFamily;
-                tab.HeaderTabTextFontAttributes = HeaderTabTextFontAttributes;
-            }
+            Init();
             foreach (var tab in tabItems)
             {
-                
-                setupTab(tab);
                 ItemSource.Add(tab);
             }
-
-            Init();
-
-            ItemSource.CollectionChanged += (object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) =>
+            if (selectedTabIndex > 0)
             {
-                foreach (var tab in ItemSource)
-                {
-                    setupTab(tab);
-                }
-                InitTabs();
-            };
-
-            InitTabs();
-            SetPosition(selectedTabIndex, true);
-
-            _carouselView.PropertyChanged += _carouselView_PropertyChanged;
+                SelectedTabIndex = selectedTabIndex;
+            }
         }
 
-        private bool _supressCarouselViewPositionChangedEvent = false;
+        void ItemSource_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {
+                foreach (var tab in e.NewItems)
+                {
+                    if (tab is TabItem newTab)
+                    {
+                        SetTabProps(newTab);
+                        AddTabToView(newTab);
+                    }
+                }
+            }
+        }
+
+        private void SetTabProps(TabItem tab)
+        {
+            //Set the tab properties from the main control only if not set in xaml at the individual tab level.
+            if (tab.HeaderTextColor == TabDefaults.DefaultColor && HeaderTabTextColor != TabDefaults.DefaultColor)
+                tab.HeaderTextColor = HeaderTabTextColor;
+            if (tab.HeaderSelectionUnderlineColor == TabDefaults.DefaultColor && HeaderSelectionUnderlineColor != TabDefaults.DefaultColor)
+                tab.HeaderSelectionUnderlineColor = HeaderSelectionUnderlineColor;
+            if (tab.HeaderSelectionUnderlineThickness.Equals(TabDefaults.DefaultThickness) && !HeaderSelectionUnderlineThickness.Equals(TabDefaults.DefaultThickness))
+                tab.HeaderSelectionUnderlineThickness = HeaderSelectionUnderlineThickness;
+            if (tab.HeaderSelectionUnderlineWidth > 0)
+                tab.HeaderSelectionUnderlineWidth = HeaderSelectionUnderlineWidth;
+            if (tab.HeaderTabTextFontSize.Equals(TabDefaults.DefaultTextSize) && !HeaderTabTextFontSize.Equals(TabDefaults.DefaultTextSize))
+                tab.HeaderTabTextFontSize = HeaderTabTextFontSize;
+            if(tab.HeaderTabTextFontFamily is null && !string.IsNullOrWhiteSpace(HeaderTabTextFontFamily))
+                tab.HeaderTabTextFontFamily = HeaderTabTextFontFamily;
+            if (tab.HeaderTabTextFontAttributes == FontAttributes.None && HeaderTabTextFontAttributes != FontAttributes.None)
+                tab.HeaderTabTextFontAttributes = HeaderTabTextFontAttributes;
+        }
+
+        private bool _supressCarouselViewPositionChangedEvent;
         private void _carouselView_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(_carouselView.Position) && !_supressCarouselViewPositionChangedEvent)
@@ -128,6 +136,7 @@ namespace Xam.Plugin.TabView
 
         private void Init()
         {
+            ItemSource = new ObservableCollection<TabItem>();
             _headerContainerGrid = new Grid
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -155,6 +164,8 @@ namespace Xam.Plugin.TabView
             };
 
             Content = _mainContainerSL;
+            ItemSource.CollectionChanged += ItemSource_CollectionChanged;
+            SetPosition(SelectedTabIndex, true);
         }
 
         protected override void OnBindingContextChanged()
@@ -174,84 +185,76 @@ namespace Xam.Plugin.TabView
 
         private void _carouselView_PositionSelected(object sender, PositionSelectedEventArgs e)
         {
-            SetPosition(e.NewValue);
+            if (_carouselView.Position != e.NewValue || SelectedTabIndex != e.NewValue)
+            {
+                SetPosition(e.NewValue);
+            }
         }
 
-        private void InitTabs()
+        void AddTabToView(TabItem tab)
         {
-            _headerContainerGrid.Children.Clear();
-            _headerContainerGrid.ColumnDefinitions.Clear();
-            _headerContainerGrid.RowDefinitions.Clear();
-
             var tabSize = (TabSizeOption.IsAbsolute && TabSizeOption.Value.Equals(0)) ? new GridLength(1, GridUnitType.Star) : TabSizeOption;
 
-            for (int i = 0; i < ItemSource.Count; i++)
+            _headerContainerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = tabSize });
+
+            tab.IsCurrent = _headerContainerGrid.ColumnDefinitions.Count - 1 == SelectedTabIndex;
+
+            var headerLabel = new Label
             {
-                _headerContainerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = tabSize });
+                Margin = new Thickness(5, 10, 5, 0),
+                BindingContext = tab,
+                VerticalTextAlignment = TextAlignment.Start,
+                HorizontalTextAlignment = TextAlignment.Center,
+                HorizontalOptions = LayoutOptions.CenterAndExpand,
+                VerticalOptions = LayoutOptions.Center
+            };
+            headerLabel.SetBinding(Label.TextProperty, nameof(TabItem.HeaderText));
+            headerLabel.SetBinding(Label.TextColorProperty, nameof(TabItem.HeaderTextColor));
+            headerLabel.SetBinding(Label.FontSizeProperty, nameof(TabItem.HeaderTabTextFontSize));
+            headerLabel.SetBinding(Label.FontFamilyProperty, nameof(TabItem.HeaderTabTextFontFamily));
+            headerLabel.SetBinding(Label.FontAttributesProperty, nameof(TabItem.HeaderTabTextFontAttributes));
 
-                var tab = ItemSource[i];
-                tab.IsCurrent = i == SelectedTabIndex;
+            var selectionBarBoxView = new BoxView
+            {
+                VerticalOptions = LayoutOptions.EndAndExpand,
+                BindingContext = tab,
+                HeightRequest = HeaderSelectionUnderlineThickness,
+                WidthRequest = HeaderSelectionUnderlineWidth
+            };
+            selectionBarBoxView.HorizontalOptions = tab.HeaderSelectionUnderlineWidth > 0 ? LayoutOptions.CenterAndExpand : LayoutOptions.FillAndExpand;
+            selectionBarBoxView.SetBinding(IsVisibleProperty, nameof(TabItem.IsCurrent));
+            selectionBarBoxView.SetBinding(BoxView.ColorProperty, nameof(TabItem.HeaderSelectionUnderlineColor));
+            selectionBarBoxView.SetBinding(WidthRequestProperty, nameof(TabItem.HeaderSelectionUnderlineWidth));
+            selectionBarBoxView.SetBinding(HeightRequestProperty, nameof(TabItem.HeaderSelectionUnderlineThickness));
 
-                var headerLabel = new Label
+            selectionBarBoxView.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>
+            {
+                if (e.PropertyName == nameof(TabItem.IsCurrent))
                 {
-                    Margin = new Thickness(5, 10, 5, 0),
-                    BindingContext = tab,
-                    VerticalTextAlignment = TextAlignment.Start,
-                    HorizontalTextAlignment = TextAlignment.Center,
-                    HorizontalOptions = LayoutOptions.CenterAndExpand,
-                    VerticalOptions = LayoutOptions.Center
-                };
-                headerLabel.SetBinding(Label.TextProperty, nameof(TabItem.HeaderText));
-                headerLabel.SetBinding(Label.TextColorProperty, nameof(TabItem.HeaderTextColor));
-                headerLabel.SetBinding(Label.FontSizeProperty, nameof(TabItem.HeaderTabTextFontSize));
-                headerLabel.SetBinding(Label.FontFamilyProperty, nameof(TabItem.HeaderTabTextFontFamily));
-                headerLabel.SetBinding(Label.FontAttributesProperty, nameof(TabItem.HeaderTabTextFontAttributes));
-
-                var selectionBarBoxView = new BoxView
+                    SetPosition(ItemSource.IndexOf((TabItem)((BoxView)sender).BindingContext));
+                }
+                if (e.PropertyName == nameof(WidthRequest))
                 {
-                    VerticalOptions = LayoutOptions.EndAndExpand,
-                    BindingContext = tab,
-                    HeightRequest = HeaderSelectionUnderlineThickness,
-                    WidthRequest = HeaderSelectionUnderlineWidth
-                };
-                selectionBarBoxView.HorizontalOptions = tab.HeaderSelectionUnderlineWidth > 0 ? LayoutOptions.CenterAndExpand : LayoutOptions.FillAndExpand;
-                selectionBarBoxView.SetBinding(BoxView.IsVisibleProperty, nameof(TabItem.IsCurrent));
-                selectionBarBoxView.SetBinding(BoxView.ColorProperty, nameof(TabItem.HeaderSelectionUnderlineColor));
-                selectionBarBoxView.SetBinding(BoxView.WidthRequestProperty, nameof(TabItem.HeaderSelectionUnderlineWidth));
-                selectionBarBoxView.SetBinding(BoxView.HeightRequestProperty, nameof(TabItem.HeaderSelectionUnderlineThickness));
+                    selectionBarBoxView.HorizontalOptions = tab.HeaderSelectionUnderlineWidth > 0 ? LayoutOptions.CenterAndExpand : LayoutOptions.FillAndExpand;
+                }
+            };
 
-                selectionBarBoxView.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>
-                {
-                    if (e.PropertyName == nameof(TabItem.IsCurrent))
-                    {
-                        SetPosition(ItemSource.IndexOf((TabItem)((BoxView)sender).BindingContext));
-                    }
-                    if (e.PropertyName == nameof(WidthRequest))
-                    {
-                        selectionBarBoxView.HorizontalOptions = tab.HeaderSelectionUnderlineWidth > 0 ? LayoutOptions.CenterAndExpand : LayoutOptions.FillAndExpand;
-                    }
-                };
-
-                var headerItemSL = new StackLayout
-                {
-                    HorizontalOptions = LayoutOptions.Fill,
-                    VerticalOptions = LayoutOptions.FillAndExpand,
-                    Children = { headerLabel, selectionBarBoxView }
-                };
-
-                var tapRecognizer = new TapGestureRecognizer();
-                int capturedIndex = i;
-                tapRecognizer.Tapped += (object s, EventArgs e) =>
-                {
-                    _supressCarouselViewPositionChangedEvent = true;
-                    SetPosition(capturedIndex);
-                    _supressCarouselViewPositionChangedEvent = false;
-                };
-                headerItemSL.GestureRecognizers.Add(tapRecognizer);
-
-                _headerContainerGrid.Children.Add(headerItemSL, i, 0);
-            }
-
+            var headerItemSL = new StackLayout
+            {
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.FillAndExpand,
+                Children = { headerLabel, selectionBarBoxView }
+            };
+            var tapRecognizer = new TapGestureRecognizer();
+            tapRecognizer.Tapped += (object s, EventArgs e) =>
+            {
+                _supressCarouselViewPositionChangedEvent = true;
+                var capturedIndex = _headerContainerGrid.Children.IndexOf((View)s);
+                SetPosition(capturedIndex);
+                _supressCarouselViewPositionChangedEvent = false;
+            };
+            headerItemSL.GestureRecognizers.Add(tapRecognizer);
+            _headerContainerGrid.Children.Add(headerItemSL, _headerContainerGrid.ColumnDefinitions.Count - 1, 0);
             _carouselView.ItemsSource = ItemSource.Select(t => t.Content);
         }
 
@@ -268,7 +271,7 @@ namespace Xam.Plugin.TabView
                 tabViewControl._headerContainerGrid.BackgroundColor = (Color)newValue;
             }
         }
-        public readonly BindableProperty HeaderBackgroundColorProperty = BindableProperty.Create(nameof(HeaderBackgroundColor), typeof(Color), typeof(TabViewControl), Color.Black, BindingMode.Default, null, HeaderBackgroundColorChanged);
+        public static readonly BindableProperty HeaderBackgroundColorProperty = BindableProperty.Create(nameof(HeaderBackgroundColor), typeof(Color), typeof(TabViewControl), Color.Black, BindingMode.Default, null, HeaderBackgroundColorChanged);
         #endregion
 
         #region HeaderTabTextColor
@@ -287,8 +290,8 @@ namespace Xam.Plugin.TabView
                 }
             }
         }
-        public readonly BindableProperty HeaderTabTextColorProperty =
-            BindableProperty.Create(nameof(HeaderTabTextColor), typeof(Color), typeof(TabViewControl), Color.White, BindingMode.OneWay, null, HeaderTabTextColorChanged);
+        public static readonly BindableProperty HeaderTabTextColorProperty =
+            BindableProperty.Create(nameof(HeaderTabTextColor), typeof(Color), typeof(TabViewControl), TabDefaults.DefaultColor, BindingMode.OneWay, null, HeaderTabTextColorChanged);
         #endregion
 
         #region ContentHeight
@@ -304,7 +307,7 @@ namespace Xam.Plugin.TabView
                 tabViewControl._carouselView.HeightRequest = (double)newValue;
             }
         }
-        public readonly BindableProperty ContentHeightProperty = BindableProperty.Create(nameof(ContentHeight), typeof(double), typeof(TabViewControl), (double)200, BindingMode.Default, null, ContentHeightChanged);
+        public static readonly BindableProperty ContentHeightProperty = BindableProperty.Create(nameof(ContentHeight), typeof(double), typeof(TabViewControl), (double)200, BindingMode.Default, null, ContentHeightChanged);
         #endregion
 
         #region HeaderSelectionUnderlineColor
@@ -323,7 +326,7 @@ namespace Xam.Plugin.TabView
                 }
             }
         }
-        public readonly BindableProperty HeaderSelectionUnderlineColorProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineColor), typeof(Color), typeof(TabViewControl), Color.White, BindingMode.Default, null, HeaderSelectionUnderlineColorChanged);
+        public static readonly BindableProperty HeaderSelectionUnderlineColorProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineColor), typeof(Color), typeof(TabViewControl), Color.White, BindingMode.Default, null, HeaderSelectionUnderlineColorChanged);
         #endregion
 
         #region HeaderSelectionUnderlineThickness
@@ -342,7 +345,7 @@ namespace Xam.Plugin.TabView
                 }
             }
         }
-        public readonly BindableProperty HeaderSelectionUnderlineThicknessProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineThickness), typeof(double), typeof(TabViewControl), (double)5, BindingMode.Default, null, HeaderSelectionUnderlineThicknessChanged);
+        public static readonly BindableProperty HeaderSelectionUnderlineThicknessProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineThickness), typeof(double), typeof(TabViewControl), TabDefaults.DefaultThickness, BindingMode.Default, null, HeaderSelectionUnderlineThicknessChanged);
         #endregion
 
         #region HeaderSelectionUnderlineWidth
@@ -361,7 +364,7 @@ namespace Xam.Plugin.TabView
                 }
             }
         }
-        public readonly BindableProperty HeaderSelectionUnderlineWidthProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineWidth), typeof(double), typeof(TabViewControl), (double)0, BindingMode.Default, null, HeaderSelectionUnderlineWidthChanged);
+        public static readonly BindableProperty HeaderSelectionUnderlineWidthProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineWidth), typeof(double), typeof(TabViewControl), (double)0, BindingMode.Default, null, HeaderSelectionUnderlineWidthChanged);
         #endregion
 
         #region HeaderTabTextFontSize
@@ -380,7 +383,7 @@ namespace Xam.Plugin.TabView
                 }
             }
         }
-        public readonly BindableProperty HeaderTabTextFontSizeProperty = BindableProperty.Create(nameof(HeaderTabTextFontSize), typeof(double), typeof(TabViewControl), (double)14, BindingMode.Default, null, HeaderTabTextFontSizeChanged);
+        public static readonly BindableProperty HeaderTabTextFontSizeProperty = BindableProperty.Create(nameof(HeaderTabTextFontSize), typeof(double), typeof(TabViewControl), (double)14, BindingMode.Default, null, HeaderTabTextFontSizeChanged);
         #endregion
 
         #region HeaderTabTextFontFamily
@@ -399,7 +402,7 @@ namespace Xam.Plugin.TabView
                 }
             }
         }
-        public readonly BindableProperty HeaderTabTextFontFamilyProperty = BindableProperty.Create(nameof(HeaderTabTextFontFamily), typeof(string), typeof(TabViewControl), null, BindingMode.Default, null, HeaderTabTextFontFamilyChanged);
+        public static readonly BindableProperty HeaderTabTextFontFamilyProperty = BindableProperty.Create(nameof(HeaderTabTextFontFamily), typeof(string), typeof(TabViewControl), null, BindingMode.Default, null, HeaderTabTextFontFamilyChanged);
         #endregion
 
         #region HeaderTabTextFontAttributes
@@ -418,27 +421,20 @@ namespace Xam.Plugin.TabView
                 }
             }
         }
-        public readonly BindableProperty HeaderTabTextFontAttributesProperty = BindableProperty.Create(nameof(HeaderTabTextFontAttributes), typeof(FontAttributes), typeof(TabViewControl), FontAttributes.None, BindingMode.Default, null, HeaderTabTextFontAttributesChanged);
+        public static readonly BindableProperty HeaderTabTextFontAttributesProperty = BindableProperty.Create(nameof(HeaderTabTextFontAttributes), typeof(FontAttributes), typeof(TabViewControl), FontAttributes.None, BindingMode.Default, null, HeaderTabTextFontAttributesChanged);
         #endregion
 
-        #region TabItems
-        public static BindableProperty TabItemsProperty = BindableProperty.Create(nameof(TabItems), typeof(IList<TabItem>), typeof(TabViewControl), null, propertyChanged: OnTabItemsChanged);
-        private static void OnTabItemsChanged(BindableObject bindable, object oldValue, object newValue)
+        #region ItemSource
+        public static readonly BindableProperty ItemSourceProperty = BindableProperty.Create(nameof(ItemSource), typeof(ObservableCollection<TabItem>), typeof(TabViewControl));
+        public ObservableCollection<TabItem> ItemSource
         {
-            if (bindable is TabViewControl tabViewControl)
-            {
-                tabViewControl.Initialize(tabViewControl.TabItems, tabViewControl.SelectedTabIndex);
-            }
-        }
-        public IList<TabItem> TabItems
-        {
-            get => (IList<TabItem>)GetValue(TabItemsProperty);
-            set { SetValue(TabItemsProperty, value); }
+            get => (ObservableCollection<TabItem>)GetValue(ItemSourceProperty);
+            set { SetValue(ItemSourceProperty, value); }
         }
         #endregion
 
         #region TabSizeOption
-        public static BindableProperty TabSizeOptionProperty = BindableProperty.Create(nameof(TabSizeOption), typeof(GridLength), typeof(TabViewControl), default(GridLength), propertyChanged: OnTabSizeOptionChanged);
+        public static readonly BindableProperty TabSizeOptionProperty = BindableProperty.Create(nameof(TabSizeOption), typeof(GridLength), typeof(TabViewControl), default(GridLength), propertyChanged: OnTabSizeOptionChanged);
         private static void OnTabSizeOptionChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is TabViewControl tabViewControl && tabViewControl._headerContainerGrid != null && tabViewControl.ItemSource != null)
@@ -457,10 +453,11 @@ namespace Xam.Plugin.TabView
         #endregion
 
         #region SelectedTabIndex
-        public static BindableProperty SelectedTabIndexProperty = BindableProperty.Create(nameof(SelectedTabIndex), typeof(int), typeof(TabViewControl), 0, propertyChanged: OnSelectedTabIndexChanged);
+        public static readonly BindableProperty SelectedTabIndexProperty = BindableProperty.Create(nameof(SelectedTabIndex), typeof(int), typeof(TabViewControl), 0, propertyChanged: OnSelectedTabIndexChanged);
         private static void OnSelectedTabIndexChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is TabViewControl tabViewControl && tabViewControl.ItemSource != null)
+            if (bindable is TabViewControl tabViewControl && tabViewControl.ItemSource != null &&
+                tabViewControl._carouselView.Position != (int)newValue)
             {
                 tabViewControl.SetPosition((int)newValue);
             }
@@ -493,18 +490,23 @@ namespace Xam.Plugin.TabView
                 return;
             }
 
-            if (position >= 0 && position < ItemSource.Count)
+            if ((position >= 0 && position < ItemSource.Count) || initialRun)
             {
-                for (int i = 0; i < ItemSource.Count; i++)
+                if (_carouselView.Position != position || initialRun)
                 {
-                    ItemSource[i].IsCurrent = i == position;
+                    _carouselView.PositionSelected -= _carouselView_PositionSelected;
+                    _carouselView.Position = position;
+                    _carouselView.PositionSelected += _carouselView_PositionSelected;
                 }
-
-                _carouselView.PositionSelected -= _carouselView_PositionSelected;
-                _carouselView.Position = position;
-                _carouselView.PositionSelected += _carouselView_PositionSelected;
-
-                SelectedTabIndex = position;
+                if (oldPosition != position)
+                {
+                    if (oldPosition < ItemSource.Count)
+                    {
+                        ItemSource[oldPosition].IsCurrent = false;
+                    }
+                    ItemSource[position].IsCurrent = true;
+                    SelectedTabIndex = position;
+                }
             }
 
             var positionChangedArgs = new PositionChangedEventArgs()
@@ -535,27 +537,44 @@ namespace Xam.Plugin.TabView
             SetPosition(ItemSource.Count - 1);
         }
 
-        public void AddTab(TabItem tab, int position = 0, bool selectNewPosition = false)
+        public void AddTab(TabItem tab, int position = -1, bool selectNewPosition = false)
         {
-            ItemSource.Insert(position, tab);
+            if (position > -1)
+            {
+                ItemSource.Insert(position, tab);
+            }
+            else
+            {
+                ItemSource.Add(tab);
+            }
             if (selectNewPosition)
             {
                 SelectedTabIndex = position;
             }
         }
 
-        public void RemoveTab(int position = 0)
+        public void RemoveTab(int position = -1)
         {
-            ItemSource.RemoveAt(position);
-
-            if (position > 0)
+            if (position > -1)
             {
-                SelectedTabIndex = position - 1;
+                ItemSource.RemoveAt(position);
+                _headerContainerGrid.Children.RemoveAt(position);
+                _headerContainerGrid.ColumnDefinitions.RemoveAt(position);
+
             }
+            else
+            {
+                ItemSource.Remove(ItemSource.Last());
+                _headerContainerGrid.Children.RemoveAt(_headerContainerGrid.Children.Count - 1);
+                _headerContainerGrid.ColumnDefinitions.Remove(_headerContainerGrid.ColumnDefinitions.Last());
+            }
+            _carouselView.ItemsSource = ItemSource.Select(t => t.Content);
+            SelectedTabIndex = position >= 0 && position < ItemSource.Count ? position : ItemSource.Count - 1;
         }
     }
 
-    public class TabItem : ObservableBase
+    [ContentProperty(nameof(Content))]
+    public class TabItem : BindableObject
     {
         public TabItem()
         {
@@ -564,96 +583,78 @@ namespace Xam.Plugin.TabView
 
         public TabItem(string headerText, View content)
         {
-            _headerText = headerText;
-            _content = content;
+            HeaderText = headerText;
+            Content = content;
         }
 
-        private string _headerText;
+        public static readonly BindableProperty HeaderTextProperty = BindableProperty.Create(nameof(HeaderText), typeof(string), typeof(TabItem));
         public string HeaderText
         {
-            get { return _headerText; }
-            set { SetProperty(ref _headerText, value); }
+            get => (string)GetValue(HeaderTextProperty);
+            set { SetValue(HeaderTextProperty, value); }
         }
 
-        private View _content;
+        public static readonly BindableProperty ContentProperty = BindableProperty.Create(nameof(Content), typeof(View), typeof(TabItem));
         public View Content
         {
-            get { return _content; }
-            set { SetProperty(ref _content, value); }
+            get => (View)GetValue(ContentProperty);
+            set { SetValue(ContentProperty, value); }
         }
 
-        private bool _isCurrent;
+        public static readonly BindableProperty IsCurrentProperty = BindableProperty.Create(nameof(IsCurrent), typeof(bool), typeof(TabItem), false);
         public bool IsCurrent
         {
-            get { return _isCurrent; }
-            set { SetProperty(ref _isCurrent, value); }
+            get => (bool)GetValue(IsCurrentProperty);
+            set { SetValue(IsCurrentProperty, value); }
         }
 
-        private Color _headerTextColor;
+        public static readonly BindableProperty HeaderTextColorProperty = BindableProperty.Create(nameof(HeaderTextColor), typeof(Color), typeof(TabItem), TabDefaults.DefaultColor);
         public Color HeaderTextColor
         {
-            get { return _headerTextColor; }
-            set { SetProperty(ref _headerTextColor, value); }
+            get => (Color)GetValue(HeaderTextColorProperty);
+            set { SetValue(HeaderTextColorProperty, value); }
         }
 
-        private Color _headerSelectionUnderlineColor;
+        public static readonly BindableProperty HeaderSelectionUnderlineColorProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineColor), typeof(Color), typeof(TabItem), TabDefaults.DefaultColor);
         public Color HeaderSelectionUnderlineColor
         {
-            get { return _headerSelectionUnderlineColor; }
-            set { SetProperty(ref _headerSelectionUnderlineColor, value); }
+            get => (Color)GetValue(HeaderSelectionUnderlineColorProperty);
+            set { SetValue(HeaderSelectionUnderlineColorProperty, value); }
         }
 
-        private double _headerSelectionUnderlineThickness;
+        public static readonly BindableProperty HeaderSelectionUnderlineThicknessProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineThickness), typeof(double), typeof(TabItem), TabDefaults.DefaultThickness);
         public double HeaderSelectionUnderlineThickness
         {
-            get { return _headerSelectionUnderlineThickness; }
-            set { SetProperty(ref _headerSelectionUnderlineThickness, value); }
+            get => (double)GetValue(HeaderSelectionUnderlineThicknessProperty);
+            set { SetValue(HeaderSelectionUnderlineThicknessProperty, value); }
         }
 
-        private double _headerSelectionUnderlineWidth;
+        public static readonly BindableProperty HeaderSelectionUnderlineWidthProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineWidth), typeof(double), typeof(TabItem), 0.0);
         public double HeaderSelectionUnderlineWidth
         {
-            get { return _headerSelectionUnderlineWidth; }
-            set { SetProperty(ref _headerSelectionUnderlineWidth, value); }
+            get => (double)GetValue(HeaderSelectionUnderlineWidthProperty);
+            set { SetValue(HeaderSelectionUnderlineWidthProperty, value); }
         }
 
-        private double _headerTabTextFontSize;
+        public static readonly BindableProperty HeaderTabTextFontSizeProperty = BindableProperty.Create(nameof(HeaderTabTextFontSize), typeof(double), typeof(TabItem), TabDefaults.DefaultTextSize);
         public double HeaderTabTextFontSize
         {
-            get { return _headerTabTextFontSize; }
-            set { SetProperty(ref _headerTabTextFontSize, value); }
+            get => (double)GetValue(HeaderTabTextFontSizeProperty);
+            set { SetValue(HeaderTabTextFontSizeProperty, value); }
         }
 
-        private string _headerTabTextFontFamily;
+        public static readonly BindableProperty HeaderTabTextFontFamilyProperty = BindableProperty.Create(nameof(HeaderTabTextFontFamily), typeof(string), typeof(TabItem));
         public string HeaderTabTextFontFamily
         {
-            get { return _headerTabTextFontFamily; }
-            set { SetProperty(ref _headerTabTextFontFamily, value); }
+            get => (string)GetValue(HeaderTabTextFontFamilyProperty);
+            set { SetValue(HeaderTabTextFontFamilyProperty, value); }
         }
 
-        private FontAttributes _headerTabTextFontAttributes;
+        public static readonly BindableProperty HeaderTabTextFontAttributesProperty = BindableProperty.Create(nameof(HeaderTabTextFontAttributes), typeof(FontAttributes), typeof(TabItem), FontAttributes.None);
         public FontAttributes HeaderTabTextFontAttributes
         {
-            get { return _headerTabTextFontAttributes; }
-            set { SetProperty(ref _headerTabTextFontAttributes, value); }
-        }
-    }
-
-    public class ObservableBase : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] String propertyName = null)
-        {
-            if (object.Equals(storage, value)) return false;
-
-            storage = value;
-            this.OnPropertyChanged(propertyName);
-            return true;
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            get => (FontAttributes)GetValue(HeaderTabTextFontAttributesProperty);
+            set { SetValue(HeaderTabTextFontAttributesProperty, value); }
         }
     }
 }
