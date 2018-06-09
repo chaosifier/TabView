@@ -13,7 +13,7 @@ namespace TabViewSample
 		{
 			InitializeComponent();
 
-			MainPage = new TabViewSample.MainPage();
+            MainPage = new NavigationPage(new MainPage());
 		}
 
 		protected override void OnStart ()

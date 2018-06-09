@@ -66,7 +66,7 @@ namespace TabViewSample
 
         private void Button_RemoveLastTab(object sender, EventArgs e)
         {
-            tabView.ItemSource.Remove(tabView.ItemSource.LastOrDefault());
+            tabView.RemoveTab(tabView.ItemSource.Count - 1);
         }
 
         private void Button_ChangeTextColor(object sender, EventArgs e)
@@ -102,6 +102,11 @@ namespace TabViewSample
         private void Button_ChangeTabTextFontFamily(object sender, EventArgs e)
         {
             tabView.HeaderTabTextFontFamily = tabView.HeaderTabTextFontFamily == "Droid Sans Mono" ? "Comic Sans MS" : "Droid Sans Mono";
+        }
+
+        private async void GoToXamlSample(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new XamlSamplePage());
         }
     }
 }
