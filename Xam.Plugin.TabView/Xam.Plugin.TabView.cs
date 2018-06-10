@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 
 using Xamarin.Forms;
@@ -31,6 +32,39 @@ namespace Xam.Plugin.TabView
         public const double DefaultThickness = 5;
         public const double DefaultTextSize = 14;
     }
+
+    #region Converters
+    public class NullToBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value != null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
+
+    public class DoubleToLayoutOptionsConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var result = double.TryParse(value.ToString(), out double val);
+            if (result && val > 0)
+            {
+                return LayoutOptions.CenterAndExpand;
+            }
+            return LayoutOptions.FillAndExpand;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
+    #endregion
 
     public class TabViewControl : ContentView
     {
@@ -101,7 +135,7 @@ namespace Xam.Plugin.TabView
                 tab.HeaderSelectionUnderlineWidth = HeaderSelectionUnderlineWidth;
             if (tab.HeaderTabTextFontSize.Equals(TabDefaults.DefaultTextSize) && !HeaderTabTextFontSize.Equals(TabDefaults.DefaultTextSize))
                 tab.HeaderTabTextFontSize = HeaderTabTextFontSize;
-            if(tab.HeaderTabTextFontFamily is null && !string.IsNullOrWhiteSpace(HeaderTabTextFontFamily))
+            if (tab.HeaderTabTextFontFamily is null && !string.IsNullOrWhiteSpace(HeaderTabTextFontFamily))
                 tab.HeaderTabTextFontFamily = HeaderTabTextFontFamily;
             if (tab.HeaderTabTextFontAttributes == FontAttributes.None && HeaderTabTextFontAttributes != FontAttributes.None)
                 tab.HeaderTabTextFontAttributes = HeaderTabTextFontAttributes;
@@ -191,7 +225,7 @@ namespace Xam.Plugin.TabView
             }
         }
 
-        void AddTabToView(TabItem tab)
+        private void AddTabToView(TabItem tab)
         {
             var tabSize = (TabSizeOption.IsAbsolute && TabSizeOption.Value.Equals(0)) ? new GridLength(1, GridUnitType.Star) : TabSizeOption;
 
@@ -199,9 +233,21 @@ namespace Xam.Plugin.TabView
 
             tab.IsCurrent = _headerContainerGrid.ColumnDefinitions.Count - 1 == SelectedTabIndex;
 
+            var headerIcon = new Image
+            {
+                Margin = new Thickness(0, 10, 0, 0),
+                BindingContext = tab,
+                HorizontalOptions = LayoutOptions.CenterAndExpand,
+                VerticalOptions = LayoutOptions.Center,
+                WidthRequest = tab.HeaderIconSize,
+                HeightRequest = tab.HeaderIconSize
+            };
+            headerIcon.SetBinding(Image.SourceProperty, nameof(TabItem.HeaderIcon));
+            headerIcon.SetBinding(IsVisibleProperty, nameof(TabItem.HeaderIcon), converter: new NullToBoolConverter());
+
             var headerLabel = new Label
             {
-                Margin = new Thickness(5, 10, 5, 0),
+                Margin = new Thickness(5, headerIcon.IsVisible? 0: 10, 5, 0),
                 BindingContext = tab,
                 VerticalTextAlignment = TextAlignment.Start,
                 HorizontalTextAlignment = TextAlignment.Center,
@@ -213,6 +259,7 @@ namespace Xam.Plugin.TabView
             headerLabel.SetBinding(Label.FontSizeProperty, nameof(TabItem.HeaderTabTextFontSize));
             headerLabel.SetBinding(Label.FontFamilyProperty, nameof(TabItem.HeaderTabTextFontFamily));
             headerLabel.SetBinding(Label.FontAttributesProperty, nameof(TabItem.HeaderTabTextFontAttributes));
+            headerLabel.SetBinding(IsVisibleProperty, nameof(TabItem.HeaderText), converter: new NullToBoolConverter());
 
             var selectionBarBoxView = new BoxView
             {
@@ -221,11 +268,13 @@ namespace Xam.Plugin.TabView
                 HeightRequest = HeaderSelectionUnderlineThickness,
                 WidthRequest = HeaderSelectionUnderlineWidth
             };
-            selectionBarBoxView.HorizontalOptions = tab.HeaderSelectionUnderlineWidth > 0 ? LayoutOptions.CenterAndExpand : LayoutOptions.FillAndExpand;
             selectionBarBoxView.SetBinding(IsVisibleProperty, nameof(TabItem.IsCurrent));
             selectionBarBoxView.SetBinding(BoxView.ColorProperty, nameof(TabItem.HeaderSelectionUnderlineColor));
             selectionBarBoxView.SetBinding(WidthRequestProperty, nameof(TabItem.HeaderSelectionUnderlineWidth));
             selectionBarBoxView.SetBinding(HeightRequestProperty, nameof(TabItem.HeaderSelectionUnderlineThickness));
+            selectionBarBoxView.SetBinding(HorizontalOptionsProperty, 
+                                           nameof(TabItem.HeaderSelectionUnderlineWidthProperty), 
+                                           converter: new DoubleToLayoutOptionsConverter());
 
             selectionBarBoxView.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>
             {
@@ -243,7 +292,7 @@ namespace Xam.Plugin.TabView
             {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.FillAndExpand,
-                Children = { headerLabel, selectionBarBoxView }
+                Children = { headerIcon, headerLabel, selectionBarBoxView }
             };
             var tapRecognizer = new TapGestureRecognizer();
             tapRecognizer.Tapped += (object s, EventArgs e) =>
@@ -581,10 +630,26 @@ namespace Xam.Plugin.TabView
             //Parameterless constructor required for xaml instantiation.
         }
 
-        public TabItem(string headerText, View content)
+        public TabItem(string headerText, View content, ImageSource headerIcon = null)
         {
             HeaderText = headerText;
             Content = content;
+            if (headerIcon != null)
+                HeaderIcon = headerIcon;
+        }
+
+        public static readonly BindableProperty HeaderIconProperty = BindableProperty.Create(nameof(HeaderIcon), typeof(ImageSource), typeof(TabItem));
+        public ImageSource HeaderIcon
+        {
+            get => (ImageSource)GetValue(HeaderIconProperty);
+            set { SetValue(HeaderIconProperty, value); }
+        }
+
+        public readonly BindableProperty HeaderIconSizeProperty = BindableProperty.Create(nameof(HeaderIconSize), typeof(double), typeof(TabItem), 32.0);
+        public double HeaderIconSize
+        {
+            get => (double)GetValue(HeaderIconSizeProperty);
+            set { SetValue(HeaderIconSizeProperty, value); }
         }
 
         public static readonly BindableProperty HeaderTextProperty = BindableProperty.Create(nameof(HeaderText), typeof(string), typeof(TabItem));
