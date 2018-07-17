@@ -515,7 +515,7 @@ namespace Xam.Plugin.TabView
         }
     }
 
-    public class TabItem : ObservableBase
+    public class TabItem : BindableObject
     {
         public TabItem()
         {
@@ -524,78 +524,78 @@ namespace Xam.Plugin.TabView
 
         public TabItem(string headerText, View content)
         {
-            _headerText = headerText;
-            _content = content;
+            HeaderText = headerText;
+            Content = content;
         }
 
-        private string _headerText;
+        public static readonly BindableProperty HeaderTextProperty = BindableProperty.Create(nameof(HeaderText), typeof(string), typeof(TabItem), string.Empty);
         public string HeaderText
         {
-            get { return _headerText; }
-            set { SetProperty(ref _headerText, value); }
+            get { return (string)GetValue(HeaderTextProperty); }
+            set { SetValue(HeaderTextProperty, value); }
         }
 
-        private View _content;
+        public static readonly BindableProperty ContentProperty = BindableProperty.Create(nameof(Content), typeof(View), typeof(TabItem));
         public View Content
         {
-            get { return _content; }
-            set { SetProperty(ref _content, value); }
+            get { return (View)GetValue(ContentProperty); }
+            set { SetValue(ContentProperty, value); }
         }
 
-        private bool _isCurrent;
+        public static readonly BindableProperty IsCurrentProperty = BindableProperty.Create(nameof(IsCurrent), typeof(bool), typeof(TabItem), false);
         public bool IsCurrent
         {
-            get { return _isCurrent; }
-            set { SetProperty(ref _isCurrent, value); }
+            get { return (bool)GetValue(IsCurrentProperty); }
+            set { SetValue(IsCurrentProperty, value); }
         }
 
-        private Color _headerTextColor;
+        public static readonly BindableProperty HeaderTextColorProperty = BindableProperty.Create(nameof(HeaderTextColor), typeof(Color), typeof(TabItem), Color.Black);
         public Color HeaderTextColor
         {
-            get { return _headerTextColor; }
-            set { SetProperty(ref _headerTextColor, value); }
+            get { return (Color)GetValue(HeaderTextColorProperty); }
+            set { SetValue(HeaderTextColorProperty, value); }
         }
 
-        private Color _headerSelectionUnderlineColor;
+        public static readonly BindableProperty HeaderSelectionUnderlineColorProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineColor), typeof(Color), typeof(TabItem), Color.White);
         public Color HeaderSelectionUnderlineColor
         {
-            get { return _headerSelectionUnderlineColor; }
-            set { SetProperty(ref _headerSelectionUnderlineColor, value); }
+            get { return (Color)GetValue(HeaderSelectionUnderlineColorProperty); }
+            set { SetValue(HeaderSelectionUnderlineColorProperty, value); }
         }
 
-        private double _headerSelectionUnderlineThickness;
+        public static readonly BindableProperty HeaderSelectionUnderlineThicknessProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineThickness), typeof(double), typeof(TabItem), (double)5);
         public double HeaderSelectionUnderlineThickness
         {
-            get { return _headerSelectionUnderlineThickness; }
-            set { SetProperty(ref _headerSelectionUnderlineThickness, value); }
+            get { return (double)GetValue(HeaderSelectionUnderlineThicknessProperty); }
+            set { SetValue(HeaderSelectionUnderlineThicknessProperty, value); }
         }
 
-        private double _headerSelectionUnderlineWidth;
+        public static readonly BindableProperty HeaderSelectionUnderlineWidthProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineWidth), typeof(double), typeof(TabItem), (double)40);
         public double HeaderSelectionUnderlineWidth
         {
-            get { return _headerSelectionUnderlineWidth; }
-            set { SetProperty(ref _headerSelectionUnderlineWidth, value); }
+            get { return (double)GetValue(HeaderSelectionUnderlineWidthProperty); }
+            set { SetValue(HeaderSelectionUnderlineWidthProperty, value); }
         }
 
-        private double _headerTabTextFontSize;
+        public static readonly BindableProperty HeaderTabTextFontSizeProperty = BindableProperty.Create(nameof(HeaderTabTextFontSize), typeof(double), typeof(TabItem), (double)14);
         public double HeaderTabTextFontSize
         {
-            get { return _headerTabTextFontSize; }
-            set { SetProperty(ref _headerTabTextFontSize, value); }
+            get { return (double)GetValue(HeaderTabTextFontSizeProperty); }
+            set { SetValue(HeaderTabTextFontSizeProperty, value); }
         }
 
-        private string _headerTabTextFontFamily;
+        public static readonly BindableProperty HeaderTabTextFontFamilyProperty = BindableProperty.Create(nameof(HeaderTabTextFontFamily), typeof(string), typeof(TabItem));
         public string HeaderTabTextFontFamily
         {
-            get { return _headerTabTextFontFamily; }
-            set { SetProperty(ref _headerTabTextFontFamily, value); }
+            get { return (string)GetValue(HeaderTabTextFontFamilyProperty); }
+            set { SetValue(HeaderTabTextFontFamilyProperty, value); }
         }
 
-        private FontAttributes _headerTabTextFontAttributes;
+        public static readonly BindableProperty HeaderTabTextFontAttributesProperty = BindableProperty.Create(nameof(HeaderTabTextFontAttributes), typeof(FontAttributes), typeof(TabItem), FontAttributes.None);
         public FontAttributes HeaderTabTextFontAttributes
         {
-            get { return _headerTabTextFontAttributes; }
-            set { SetProperty(ref _headerTabTextFontAttributes, value); }
+            get { return (FontAttributes)GetValue(HeaderTabTextFontAttributesProperty); }
+            set { SetValue(HeaderTabTextFontAttributesProperty, value); }
         }
     }
 
