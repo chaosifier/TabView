@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             x:Class="TabViewSample.XamlSamplePage"
+             xmlns:tvs="clr-namespace:Xam.Plugin.TabView;assembly=Xam.Plugin.TabView">
+    <ContentPage.Content>
+        <tvs:TabViewControl HeaderTabTextFontSize="Default">
+            <tvs:TabViewControl.ItemSource>
+                <tvs:TabItem HeaderText="First Tab">
+                    <Button Text="Go back to main page from first page" Clicked="GoBackClicked"/>
+                </tvs:TabItem>
+                <tvs:TabItem HeaderText="Second Tab">
+                    <Button Text="Go back to main page from second page" Clicked="GoBackClicked"/>
+                </tvs:TabItem>
+                <tvs:TabItem HeaderText="Third Tab">
+                    <Button Text="Go back to main page from third page" Clicked="GoBackClicked"/>
+                </tvs:TabItem>
+            </tvs:TabViewControl.ItemSource>
+        </tvs:TabViewControl>
+    </ContentPage.Content>
+</ContentPage>

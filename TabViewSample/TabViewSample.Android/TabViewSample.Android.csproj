@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>TabViewSample.Droid</RootNamespace>
     <AssemblyName>TabViewSample.Android</AssemblyName>
-    <TargetFrameworkVersion>v7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidResgenClass>Resource</AndroidResgenClass>
@@ -84,7 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TabViewSample\TabViewSample.csproj">
-      <Project>{99F5DCC3-FBCB-42C1-B608-919132027C6D}</Project>
+      <Project>{A1BE3D09-4218-4BA3-BB05-960D3C6A6FC7}</Project>
       <Name>TabViewSample</Name>
     </ProjectReference>
   </ItemGroup>
