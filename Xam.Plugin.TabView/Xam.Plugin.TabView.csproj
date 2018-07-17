@@ -35,8 +35,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Xam.Plugin.TabView.cs" />
+    <Compile Include="Converters\DoubleToLayoutOptionsConverter.cs" />
+    <Compile Include="Converters\NullToBoolConverter.cs" />
+    <Compile Include="ObservableBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TabItem.cs" />
+    <Compile Include="Xam.Plugin.TabView.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="CarouselView.FormsPlugin.Abstractions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
