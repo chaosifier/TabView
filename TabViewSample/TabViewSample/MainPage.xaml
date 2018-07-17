@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:TabViewSample"
@@ -21,6 +21,7 @@
                     <Button Text="Change tab header text font size" Clicked="Button_ChangeTabTextFontSize" HorizontalOptions="Start"/>
                     <Button Text="Change tab header text font family" Clicked="Button_ChangeTabTextFontFamily" HorizontalOptions="Start"/>
                     <Button Text="Change tab header text font attributes" Clicked="Button_ChangeTabTextFontAttributes" HorizontalOptions="Start"/>
+                    <Button Text="Go to Xaml sample page" Clicked="GoToXamlSample" HorizontalOptions="Start" />
                 </StackLayout>
             </ScrollView>
         </StackLayout>

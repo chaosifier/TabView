@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TabViewSample.iOS", "TabVie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TabViewSample.UWP", "TabViewSample\TabViewSample.UWP\TabViewSample.UWP.csproj", "{909B2717-A345-4085-BDE7-9D06500321BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TabViewSample", "TabViewSample\TabViewSample\TabViewSample.csproj", "{A1BE3D09-4218-4BA3-BB05-960D3C6A6FC7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TabViewSample", "TabViewSample\TabViewSample\TabViewSample.csproj", "{A1BE3D09-4218-4BA3-BB05-960D3C6A6FC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -180,6 +180,7 @@ Global
 		{B4235E46-CD20-4B22-8E94-749E3B7B456F}.AppStore|x64.ActiveCfg = AppStore|iPhone
 		{B4235E46-CD20-4B22-8E94-749E3B7B456F}.AppStore|x86.ActiveCfg = AppStore|iPhone
 		{B4235E46-CD20-4B22-8E94-749E3B7B456F}.Debug|Any CPU.ActiveCfg = Debug|iPhone
+		{B4235E46-CD20-4B22-8E94-749E3B7B456F}.Debug|Any CPU.Build.0 = Debug|iPhone
 		{B4235E46-CD20-4B22-8E94-749E3B7B456F}.Debug|ARM.ActiveCfg = Debug|iPhone
 		{B4235E46-CD20-4B22-8E94-749E3B7B456F}.Debug|iPhone.ActiveCfg = Debug|iPhone
 		{B4235E46-CD20-4B22-8E94-749E3B7B456F}.Debug|iPhone.Build.0 = Debug|iPhone
@@ -232,6 +233,7 @@ Global
 		{909B2717-A345-4085-BDE7-9D06500321BF}.AppStore|x86.Build.0 = Release|x86
 		{909B2717-A345-4085-BDE7-9D06500321BF}.AppStore|x86.Deploy.0 = Release|x86
 		{909B2717-A345-4085-BDE7-9D06500321BF}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{909B2717-A345-4085-BDE7-9D06500321BF}.Debug|Any CPU.Deploy.0 = Debug|x86
 		{909B2717-A345-4085-BDE7-9D06500321BF}.Debug|ARM.ActiveCfg = Debug|ARM
 		{909B2717-A345-4085-BDE7-9D06500321BF}.Debug|ARM.Build.0 = Debug|ARM
 		{909B2717-A345-4085-BDE7-9D06500321BF}.Debug|ARM.Deploy.0 = Debug|ARM
