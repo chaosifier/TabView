@@ -2,7 +2,7 @@
 TabView control for Xamarin.Forms.<br />
 Requires <a href="https://github.com/alexrainman/CarouselView/">CarouselView</a> plugin.
 
-Also available on NuGet : https://github.com/chaosifier/TabView/ [![NuGet](https://img.shields.io/badge/NUGET-1.0.4-green.svg)](https://github.com/chaosifier/TabView/)
+Also available on NuGet : https://www.nuget.org/packages/Xam.Plugin.TabView [![NuGet](https://img.shields.io/badge/NUGET-1.0.4-green.svg)](https://www.nuget.org/packages/Xam.Plugin.TabView)
 
 Make sure to initialize the CarouselView plugin first before using TabView.
 To do so, in your iOS and Android projects call:
