@@ -221,7 +221,16 @@ namespace Xam.Plugin.TabView
                 VerticalOptions = LayoutOptions.Center
             };
             headerLabel.SetBinding(Label.TextProperty, nameof(TabItem.HeaderText));
-            headerLabel.SetBinding(Label.TextColorProperty, nameof(TabItem.HeaderTextColor));
+            if (tab.IsCurrent)
+            {
+                headerLabel.TextColor = HeaderSelectionTabTextColor;
+                //headerLabel.SetBinding(Label.TextColorProperty, nameof(HeaderSelectionTabTextColor));
+            }
+            else
+            {
+                headerLabel.TextColor = HeaderTabTextColor;
+                //headerLabel.SetBinding(Label.TextColorProperty, nameof(TabItem.HeaderTextColor));
+            }
             headerLabel.SetBinding(Label.FontSizeProperty, nameof(TabItem.HeaderTabTextFontSize));
             headerLabel.SetBinding(Label.FontFamilyProperty, nameof(TabItem.HeaderTabTextFontFamily));
             headerLabel.SetBinding(Label.FontAttributesProperty, nameof(TabItem.HeaderTabTextFontAttributes));
@@ -361,6 +370,17 @@ namespace Xam.Plugin.TabView
             }
         }
         public static readonly BindableProperty HeaderSelectionUnderlineThicknessProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineThickness), typeof(double), typeof(TabViewControl), TabDefaults.DefaultThickness, BindingMode.Default, null, HeaderSelectionUnderlineThicknessChanged);
+        #endregion
+
+        #region HeaderSelectionTextColor
+        public static readonly BindableProperty HeaderSelectionTabTextColorProperty = BindableProperty.Create(nameof(HeaderSelectionTabTextColor), typeof(Color), typeof(TabViewControl), Color.Red,BindingMode.OneWay);
+        public Color HeaderSelectionTabTextColor
+        {
+            get { return (Color)GetValue(HeaderSelectionTabTextColorProperty); }
+            set { SetValue(HeaderSelectionTabTextColorProperty, value); }
+        }
+
+
         #endregion
 
         #region HeaderSelectionUnderlineWidth
@@ -519,9 +539,15 @@ namespace Xam.Plugin.TabView
                     if (oldPosition < ItemSource.Count)
                     {
                         ItemSource[oldPosition].IsCurrent = false;
+                        var oldSelectedHeaderLabel = GetHeaderTitleLabel(oldPosition);
+                        oldSelectedHeaderLabel.SetBinding(Label.TextColorProperty, nameof(TabItem.HeaderTextColor));
+                        oldSelectedHeaderLabel.TextColor = ItemSource[oldPosition].HeaderTextColor;
                     }
                     ItemSource[position].IsCurrent = true;
                     SelectedTabIndex = position;
+                    var newSelectedHeaderLabel = GetHeaderTitleLabel(position);
+                    newSelectedHeaderLabel.SetBinding(Label.TextColorProperty, nameof(HeaderSelectionTabTextColor));
+                    newSelectedHeaderLabel.TextColor = HeaderSelectionTabTextColor;
                 }
             }
 
@@ -531,6 +557,12 @@ namespace Xam.Plugin.TabView
                 OldPosition = oldPosition
             };
             OnPositionChanged(positionChangedArgs);
+        }
+
+        private Label GetHeaderTitleLabel(int selectedIndex)
+        {
+            var headerStackLayout = (StackLayout)_headerContainerGrid.Children[selectedIndex];
+            return headerStackLayout.Children[1] as Label;
         }
 
         public void SelectNext()

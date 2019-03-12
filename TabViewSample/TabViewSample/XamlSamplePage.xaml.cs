@@ -10,6 +10,7 @@ namespace TabViewSample
         public XamlSamplePage()
         {
             InitializeComponent();
+            //tab.HeaderSelectionTabTextColor = Color.Blue;
         }
 
         async void GoBackClicked(object sender, System.EventArgs e)

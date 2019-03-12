@@ -4,7 +4,7 @@
              x:Class="TabViewSample.XamlSamplePage"
              xmlns:tvs="clr-namespace:Xam.Plugin.TabView;assembly=Xam.Plugin.TabView">
     <ContentPage.Content>
-        <tvs:TabViewControl HeaderTabTextFontSize="Default">
+        <tvs:TabViewControl x:Name="tab" HeaderTabTextFontSize="Default" HeaderSelectionTabTextColor="Blue">
             <tvs:TabViewControl.ItemSource>
                 <tvs:TabItem HeaderText="First Tab">
                     <Button Text="Go back to main page from first page" Clicked="GoBackClicked"/>
