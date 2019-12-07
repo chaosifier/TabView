@@ -131,6 +131,8 @@ namespace Xam.Plugin.TabView
                     _carouselView.PropertyChanged += _carouselView_PropertyChanged;
                     _supressCarouselViewPositionChangedEvent = false;
                 }
+
+                SetPosition(positionChangingArgs.NewPosition);
             }
         }
 
@@ -154,6 +156,9 @@ namespace Xam.Plugin.TabView
                 ShowIndicators = false,
                 BindingContext = this
             };
+
+            _carouselView.PropertyChanged += _carouselView_PropertyChanged;
+            _carouselView.PositionSelected += _carouselView_PositionSelected;
 
             _mainContainerSL = new StackLayout
             {
