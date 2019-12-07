@@ -273,6 +273,22 @@ namespace Xam.Plugin.TabView
             _carouselView.ItemsSource = ItemSource.Select(t => t.Content);
         }
 
+        #region IsSwipingEnabled
+        public bool IsSwipingEnabled
+        {
+            get { return (bool)GetValue(IsSwipingEnabledProperty); }
+            set { SetValue(IsSwipingEnabledProperty, value); }
+        }
+        private static void IsSwipingEnabledChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is TabViewControl tabViewControl)
+            {
+                tabViewControl._carouselView.IsSwipingEnabled = (bool)newValue;
+            }
+        }
+        public static readonly BindableProperty IsSwipingEnabledProperty = BindableProperty.Create(nameof(IsSwipingEnabled), typeof(bool), typeof(TabViewControl), true, BindingMode.Default, null, IsSwipingEnabledChanged);
+        #endregion
+
         #region HeaderBackgroundColor
         public Color HeaderBackgroundColor
         {
