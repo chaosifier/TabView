@@ -2,6 +2,23 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>1.0.5</Version>
+    <Authors>Sagar Dahal</Authors>
+    <Company />
+    <Description>TabView Control for Xamarin.Forms.</Description>
+    <Copyright>Copyright 2019</Copyright>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/chaosifier/TabView</PackageProjectUrl>
+    <PackageIconUrl>https://sagardahal.info.np/images/sd.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/chaosifier/TabView</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>xamarin forms android ios uwp tabview tab control plugin chaosifier xam</PackageTags>
+    <PackageReleaseNotes>- Added tabs header scroll behavior when tabs overflow
+- Added IsSwipingEnabled bindable property
+- Updated to .NET Standard 2.0
+- Delayed tab header change issue fixed
+- Issues related to inconsistent header heights fixed</PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

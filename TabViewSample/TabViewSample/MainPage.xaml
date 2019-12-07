@@ -28,20 +28,25 @@
                     </tabview:TabItem>
                     <tabview:TabItem HeaderText="Third Tab"  HeaderIcon="icon.png">
                         <tabview:TabViewControl HorizontalOptions="FillAndExpand" BackgroundColor="Salmon" HeaderBackgroundColor="ForestGreen">
-                        <tabview:TabViewControl.ItemSource>
-                            <tabview:TabItem HeaderText="Nested Tab 1">
-                                <Image Source="monkey.png" BackgroundColor="SkyBlue" HorizontalOptions="FillAndExpand" Aspect="AspectFit"/>
-                            </tabview:TabItem>
-                            <tabview:TabItem HeaderText="Nested Tab 2">
-                                <BoxView VerticalOptions="Center" HorizontalOptions="Center" BackgroundColor="Orange" HeightRequest="40" WidthRequest="40"/>
-                            </tabview:TabItem>
-                            <tabview:TabItem HeaderText="Nested Tab 3">
-                                <Label Text="Xamarin Rocks!" FontSize="Large" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
-                            </tabview:TabItem>
-                        </tabview:TabViewControl.ItemSource>
-            </tabview:TabViewControl>
-            </tabview:TabItem>
-            </tabview:TabViewControl.ItemSource>
+                            <tabview:TabViewControl.ItemSource>
+                                <tabview:TabItem HeaderText="Nested Tab 1">
+                                    <Image Source="monkey.png" BackgroundColor="SkyBlue" HorizontalOptions="FillAndExpand" Aspect="AspectFit"/>
+                                </tabview:TabItem>
+                                <tabview:TabItem HeaderText="Nested Tab 2">
+                                    <ContentView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                                        <BoxView VerticalOptions="Center" HorizontalOptions="Center" BackgroundColor="Orange" HeightRequest="40" WidthRequest="40"/>
+                                    </ContentView>
+                                </tabview:TabItem>
+                                <tabview:TabItem HeaderText="Nested Tab 3">
+                                    <ContentView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                                        <Label Text="Xamarin Rocks!" FontSize="Large" VerticalOptions="Center" HorizontalOptions="Center"/>
+                                    </ContentView>
+
+                                </tabview:TabItem>
+                            </tabview:TabViewControl.ItemSource>
+                        </tabview:TabViewControl>
+                    </tabview:TabItem>
+                </tabview:TabViewControl.ItemSource>
             </tabview:TabViewControl>
             <ScrollView HorizontalOptions="FillAndExpand">
                 <StackLayout Spacing="10">

@@ -616,7 +616,6 @@ namespace Xam.Plugin.TabView
                 ItemSource.RemoveAt(position);
                 _headerContainerGrid.Children.RemoveAt(position);
                 _headerContainerGrid.ColumnDefinitions.RemoveAt(position);
-
             }
             else
             {
