@@ -5044,6 +5044,9 @@ namespace TabViewSample.Droid
 			// aapt resource value: 0x7F070117
 			public const int Up = 2131165463;
 			
+			// aapt resource value: 0x7F070118
+			public const int WIN_20191116_13_25_30_Pro = 2131165464;
+			
 			static Drawable()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();

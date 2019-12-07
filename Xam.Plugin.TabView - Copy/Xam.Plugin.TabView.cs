@@ -404,7 +404,7 @@ namespace Xam.Plugin.TabView
         #endregion
 
         #region HeaderTabTextFontSize
-        [Xamarin.Forms.TypeConverter(typeof(FontSizeConverter))]
+        [TypeConverter(typeof(FontSizeConverter))]
         public double HeaderTabTextFontSize
         {
             get { return (double)GetValue(HeaderTabTextFontSizeProperty); }
