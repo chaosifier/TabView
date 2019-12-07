@@ -283,7 +283,7 @@ namespace Xam.Plugin.TabView
         {
             if (bindable is TabViewControl tabViewControl)
             {
-                tabViewControl._carouselView.IsSwipingEnabled = (bool)newValue;
+                tabViewControl._carouselView.IsSwipeEnabled = (bool)newValue;
             }
         }
         public static readonly BindableProperty IsSwipingEnabledProperty = BindableProperty.Create(nameof(IsSwipingEnabled), typeof(bool), typeof(TabViewControl), true, BindingMode.Default, null, IsSwipingEnabledChanged);
