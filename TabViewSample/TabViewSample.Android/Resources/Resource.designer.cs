@@ -4937,115 +4937,115 @@ namespace TabViewSample.Droid
 			public const int ic_vol_type_tv_light = 2131165426;
 			
 			// aapt resource value: 0x7F0700F4
-			public const int mr_button_connected_dark = 2131165428;
+			public const int monkey = 2131165428;
 			
 			// aapt resource value: 0x7F0700F5
-			public const int mr_button_connected_light = 2131165429;
+			public const int mr_button_connected_dark = 2131165429;
 			
 			// aapt resource value: 0x7F0700F6
-			public const int mr_button_connecting_dark = 2131165430;
+			public const int mr_button_connected_light = 2131165430;
 			
 			// aapt resource value: 0x7F0700F7
-			public const int mr_button_connecting_light = 2131165431;
+			public const int mr_button_connecting_dark = 2131165431;
 			
 			// aapt resource value: 0x7F0700F8
-			public const int mr_button_dark = 2131165432;
+			public const int mr_button_connecting_light = 2131165432;
 			
 			// aapt resource value: 0x7F0700F9
-			public const int mr_button_light = 2131165433;
+			public const int mr_button_dark = 2131165433;
 			
 			// aapt resource value: 0x7F0700FA
-			public const int mr_dialog_close_dark = 2131165434;
+			public const int mr_button_light = 2131165434;
 			
 			// aapt resource value: 0x7F0700FB
-			public const int mr_dialog_close_light = 2131165435;
+			public const int mr_dialog_close_dark = 2131165435;
 			
 			// aapt resource value: 0x7F0700FC
-			public const int mr_dialog_material_background_dark = 2131165436;
+			public const int mr_dialog_close_light = 2131165436;
 			
 			// aapt resource value: 0x7F0700FD
-			public const int mr_dialog_material_background_light = 2131165437;
+			public const int mr_dialog_material_background_dark = 2131165437;
 			
 			// aapt resource value: 0x7F0700FE
-			public const int mr_group_collapse = 2131165438;
+			public const int mr_dialog_material_background_light = 2131165438;
 			
 			// aapt resource value: 0x7F0700FF
-			public const int mr_group_expand = 2131165439;
+			public const int mr_group_collapse = 2131165439;
 			
 			// aapt resource value: 0x7F070100
-			public const int mr_media_pause_dark = 2131165440;
+			public const int mr_group_expand = 2131165440;
 			
 			// aapt resource value: 0x7F070101
-			public const int mr_media_pause_light = 2131165441;
+			public const int mr_media_pause_dark = 2131165441;
 			
 			// aapt resource value: 0x7F070102
-			public const int mr_media_play_dark = 2131165442;
+			public const int mr_media_pause_light = 2131165442;
 			
 			// aapt resource value: 0x7F070103
-			public const int mr_media_play_light = 2131165443;
+			public const int mr_media_play_dark = 2131165443;
 			
 			// aapt resource value: 0x7F070104
-			public const int mr_media_stop_dark = 2131165444;
+			public const int mr_media_play_light = 2131165444;
 			
 			// aapt resource value: 0x7F070105
-			public const int mr_media_stop_light = 2131165445;
+			public const int mr_media_stop_dark = 2131165445;
 			
 			// aapt resource value: 0x7F070106
-			public const int mr_vol_type_audiotrack_dark = 2131165446;
+			public const int mr_media_stop_light = 2131165446;
 			
 			// aapt resource value: 0x7F070107
-			public const int mr_vol_type_audiotrack_light = 2131165447;
+			public const int mr_vol_type_audiotrack_dark = 2131165447;
 			
 			// aapt resource value: 0x7F070108
-			public const int navigation_empty_icon = 2131165448;
+			public const int mr_vol_type_audiotrack_light = 2131165448;
 			
 			// aapt resource value: 0x7F070109
-			public const int Next = 2131165449;
+			public const int navigation_empty_icon = 2131165449;
 			
 			// aapt resource value: 0x7F07010A
-			public const int notification_action_background = 2131165450;
+			public const int Next = 2131165450;
 			
 			// aapt resource value: 0x7F07010B
-			public const int notification_bg = 2131165451;
+			public const int notification_action_background = 2131165451;
 			
 			// aapt resource value: 0x7F07010C
-			public const int notification_bg_low = 2131165452;
+			public const int notification_bg = 2131165452;
 			
 			// aapt resource value: 0x7F07010D
-			public const int notification_bg_low_normal = 2131165453;
+			public const int notification_bg_low = 2131165453;
 			
 			// aapt resource value: 0x7F07010E
-			public const int notification_bg_low_pressed = 2131165454;
+			public const int notification_bg_low_normal = 2131165454;
 			
 			// aapt resource value: 0x7F07010F
-			public const int notification_bg_normal = 2131165455;
+			public const int notification_bg_low_pressed = 2131165455;
 			
 			// aapt resource value: 0x7F070110
-			public const int notification_bg_normal_pressed = 2131165456;
+			public const int notification_bg_normal = 2131165456;
 			
 			// aapt resource value: 0x7F070111
-			public const int notification_icon_background = 2131165457;
+			public const int notification_bg_normal_pressed = 2131165457;
 			
 			// aapt resource value: 0x7F070112
-			public const int notification_template_icon_bg = 2131165458;
+			public const int notification_icon_background = 2131165458;
 			
 			// aapt resource value: 0x7F070113
-			public const int notification_template_icon_low_bg = 2131165459;
+			public const int notification_template_icon_bg = 2131165459;
 			
 			// aapt resource value: 0x7F070114
-			public const int notification_tile_bg = 2131165460;
+			public const int notification_template_icon_low_bg = 2131165460;
 			
 			// aapt resource value: 0x7F070115
-			public const int notify_panel_notification_icon_bg = 2131165461;
+			public const int notification_tile_bg = 2131165461;
 			
 			// aapt resource value: 0x7F070116
-			public const int Prev = 2131165462;
+			public const int notify_panel_notification_icon_bg = 2131165462;
 			
 			// aapt resource value: 0x7F070117
-			public const int Up = 2131165463;
+			public const int Prev = 2131165463;
 			
 			// aapt resource value: 0x7F070118
-			public const int WIN_20191116_13_25_30_Pro = 2131165464;
+			public const int Up = 2131165464;
 			
 			static Drawable()
 			{

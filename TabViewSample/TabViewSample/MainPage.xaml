@@ -2,12 +2,49 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:TabViewSample"
+             xmlns:tabview="clr-namespace:Xam.Plugin.TabView;assembly=Xam.Plugin.TabView"
              x:Class="TabViewSample.MainPage">
     <ContentPage.Content>
-        <StackLayout Padding="20">
-            <StackLayout Margin="40" x:Name="theSl"/>
-            <ScrollView VerticalOptions="FillAndExpand">
-                <StackLayout>
+        <StackLayout>
+            <tabview:TabViewControl HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" x:Name="theTabView" HeightRequest="500">
+                <tabview:TabViewControl.ItemSource>
+                    <tabview:TabItem HeaderText="First Tab" HeaderIcon="icon.png">
+                        <Image Source="monkey.png" BackgroundColor="SkyBlue" HorizontalOptions="FillAndExpand" Aspect="AspectFit"/>
+                    </tabview:TabItem>
+                    <tabview:TabItem HeaderText="Second Tab">
+                        <ListView HorizontalOptions="FillAndExpand">
+                            <ListView.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>Baboon</x:String>
+                                    <x:String>Capuchin Monkey</x:String>
+                                    <x:String>Blue Monkey</x:String>
+                                    <x:String>Squirrel Monkey</x:String>
+                                    <x:String>Golden Lion Tamarin</x:String>
+                                    <x:String>Howler Monkey</x:String>
+                                    <x:String>Japanese Macaque</x:String>
+                                </x:Array>
+                            </ListView.ItemsSource>
+                        </ListView>
+                    </tabview:TabItem>
+                    <tabview:TabItem HeaderText="Third Tab"  HeaderIcon="icon.png">
+                        <tabview:TabViewControl HorizontalOptions="FillAndExpand" BackgroundColor="Salmon" HeaderBackgroundColor="ForestGreen">
+                        <tabview:TabViewControl.ItemSource>
+                            <tabview:TabItem HeaderText="Nested Tab 1">
+                                <Image Source="monkey.png" BackgroundColor="SkyBlue" HorizontalOptions="FillAndExpand" Aspect="AspectFit"/>
+                            </tabview:TabItem>
+                            <tabview:TabItem HeaderText="Nested Tab 2">
+                                <BoxView VerticalOptions="Center" HorizontalOptions="Center" BackgroundColor="Orange" HeightRequest="40" WidthRequest="40"/>
+                            </tabview:TabItem>
+                            <tabview:TabItem HeaderText="Nested Tab 3">
+                                <Label Text="Xamarin Rocks!" FontSize="Large" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
+                            </tabview:TabItem>
+                        </tabview:TabViewControl.ItemSource>
+            </tabview:TabViewControl>
+            </tabview:TabItem>
+            </tabview:TabViewControl.ItemSource>
+            </tabview:TabViewControl>
+            <ScrollView HorizontalOptions="FillAndExpand">
+                <StackLayout Spacing="10">
                     <Button Text="First" Clicked="Button_First" HorizontalOptions="Start"/>
                     <Button Text="Previous" Clicked="Button_Previous" HorizontalOptions="Start"/>
                     <Button Text="Next" Clicked="Button_Next" HorizontalOptions="Start"/>

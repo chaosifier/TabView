@@ -10,98 +10,74 @@ namespace TabViewSample
 {
     public partial class MainPage : ContentPage
     {
-        TabViewControl tabView;
         public MainPage()
         {
             InitializeComponent();
-
-            tabView = new TabViewControl(new List<TabItem>()
-            {
-                new TabItem("Tab 1", new Label{Text = "Tab 1", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Red}),
-                new TabItem("Tab 2", new Label{Text = "Tab 2", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Green}),
-                new TabItem("Tab 3", new Label{Text = "Tab 3", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Blue}),
-            });
-            tabView.VerticalOptions = LayoutOptions.FillAndExpand;
-            theSl.Children.Add(tabView);
-
-            tabView.PositionChanged += TabView_PositionChanged;
-            tabView.PositionChanging += TabView_PositionChanging; ;
-
-        }
-
-        private void TabView_PositionChanging(object sender, PositionChangingEventArgs e)
-        {
-
-        }
-
-        private void TabView_PositionChanged(object sender, PositionChangedEventArgs e)
-        {
-
         }
 
         private void Button_Next(object sender, EventArgs e)
         {
-            tabView.SelectNext();
+            theTabView.SelectNext();
         }
 
         private void Button_First(object sender, EventArgs e)
         {
-            tabView.SelectFirst();
+            theTabView.SelectFirst();
         }
 
         private void Button_Previous(object sender, EventArgs e)
         {
-            tabView.SelectPrevious();
+            theTabView.SelectPrevious();
         }
 
         private void Button_Last(object sender, EventArgs e)
         {
-            tabView.SelectLast();
+            theTabView.SelectLast();
         }
 
         private void Button_AddTab(object sender, EventArgs e)
         {
-            tabView.AddTab(new TabItem("New", new Label { Text = "New", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Red }));
+            theTabView.AddTab(new TabItem("New", new Label { Text = "New", HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand, BackgroundColor = Color.Red }));
         }
 
         private void Button_RemoveLastTab(object sender, EventArgs e)
         {
-            tabView.RemoveTab(tabView.ItemSource.Count - 1);
+            theTabView.RemoveTab(theTabView.ItemSource.Count - 1);
         }
 
         private void Button_ChangeTextColor(object sender, EventArgs e)
         {
-            tabView.HeaderTabTextColor = tabView.HeaderTabTextColor == Color.LightGreen ? Color.White : Color.LightGreen;
+            theTabView.HeaderTabTextColor = theTabView.HeaderTabTextColor == Color.LightGreen ? Color.White : Color.LightGreen;
         }
 
         private void Button_ChangeSelectionUnderlineColor(object sender, EventArgs e)
         {
-            tabView.HeaderSelectionUnderlineColor = tabView.HeaderSelectionUnderlineColor == Color.Yellow ? Color.White : Color.Yellow;
+            theTabView.HeaderSelectionUnderlineColor = theTabView.HeaderSelectionUnderlineColor == Color.Yellow ? Color.White : Color.Yellow;
         }
 
         private void Button_ChangeSelectionUnderlineThickness(object sender, EventArgs e)
         {
-            tabView.HeaderSelectionUnderlineThickness = tabView.HeaderSelectionUnderlineThickness + 5;
+            theTabView.HeaderSelectionUnderlineThickness = theTabView.HeaderSelectionUnderlineThickness + 5;
         }
 
         private void Button_ChangeSelectionUnderlineWidth(object sender, EventArgs e)
         {
-            tabView.HeaderSelectionUnderlineWidth = tabView.HeaderSelectionUnderlineWidth + 10;
+            theTabView.HeaderSelectionUnderlineWidth = theTabView.HeaderSelectionUnderlineWidth + 10;
         }
 
         private void Button_ChangeTabTextFontSize(object sender, EventArgs e)
         {
-            tabView.HeaderTabTextFontSize = tabView.HeaderTabTextFontSize + 1;
+            theTabView.HeaderTabTextFontSize = theTabView.HeaderTabTextFontSize + 1;
         }
 
         private void Button_ChangeTabTextFontAttributes(object sender, EventArgs e)
         {
-            tabView.HeaderTabTextFontAttributes = tabView.HeaderTabTextFontAttributes == FontAttributes.Bold ? FontAttributes.Italic : FontAttributes.Bold;
+            theTabView.HeaderTabTextFontAttributes = theTabView.HeaderTabTextFontAttributes == FontAttributes.Bold ? FontAttributes.Italic : FontAttributes.Bold;
         }
 
         private void Button_ChangeTabTextFontFamily(object sender, EventArgs e)
         {
-            tabView.HeaderTabTextFontFamily = tabView.HeaderTabTextFontFamily == "Droid Sans Mono" ? "Comic Sans MS" : "Droid Sans Mono";
+            theTabView.HeaderTabTextFontFamily = theTabView.HeaderTabTextFontFamily == "Droid Sans Mono" ? "Comic Sans MS" : "Droid Sans Mono";
         }
 
         private async void GoToXamlSample(object sender, EventArgs e)

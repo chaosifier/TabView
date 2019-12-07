@@ -37,7 +37,7 @@ namespace Xam.Plugin.TabView
         private StackLayout _mainContainerSL;
         private Grid _headerContainerGrid;
         private CarouselViewControl _carouselView;
-
+        private ScrollView _tabHeadersContainerSv;
 
         public event PositionChangingEventHandler PositionChanging;
         public event PositionChangedEventHandler PositionChanged;
@@ -139,12 +139,23 @@ namespace Xam.Plugin.TabView
         private void Init()
         {
             ItemSource = new ObservableCollection<TabItem>();
+
             _headerContainerGrid = new Grid
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 VerticalOptions = LayoutOptions.Start,
+                // BackgroundColor = Color.White, // tab sepeartor color
+                MinimumHeightRequest = 50,
+                ColumnSpacing = 0, // seperator thickness
+            };
+
+            _tabHeadersContainerSv = new ScrollView()
+            {
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Never,
+                Orientation = ScrollOrientation.Horizontal,
+                Content = _headerContainerGrid,
                 BackgroundColor = HeaderBackgroundColor,
-                MinimumHeightRequest = 50
+                HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
             _carouselView = new CarouselViewControl
@@ -164,7 +175,7 @@ namespace Xam.Plugin.TabView
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 VerticalOptions = LayoutOptions.FillAndExpand,
-                Children = { _headerContainerGrid, _carouselView },
+                Children = { _tabHeadersContainerSv, _carouselView },
                 Spacing = 0
             };
 
@@ -206,7 +217,7 @@ namespace Xam.Plugin.TabView
 
             var headerIcon = new Image
             {
-                Margin = new Thickness(0, 10, 0, 0),
+                Margin = new Thickness(0, 8, 0, 0),
                 BindingContext = tab,
                 HorizontalOptions = LayoutOptions.CenterAndExpand,
                 VerticalOptions = LayoutOptions.Center,
@@ -218,13 +229,14 @@ namespace Xam.Plugin.TabView
 
             var headerLabel = new Label
             {
-                Margin = new Thickness(5, headerIcon.IsVisible ? 0 : 10, 5, 0),
                 BindingContext = tab,
-                VerticalTextAlignment = TextAlignment.Start,
+                VerticalTextAlignment = TextAlignment.Center,
                 HorizontalTextAlignment = TextAlignment.Center,
-                HorizontalOptions = LayoutOptions.CenterAndExpand,
-                VerticalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.CenterAndExpand,
+                Margin = new Thickness(5, 8, 5, 5)
             };
+
             headerLabel.SetBinding(Label.TextProperty, nameof(TabItem.HeaderText));
             headerLabel.SetBinding(Label.TextColorProperty, nameof(TabItem.HeaderTextColor));
             headerLabel.SetBinding(Label.FontSizeProperty, nameof(TabItem.HeaderTabTextFontSize));
@@ -234,13 +246,16 @@ namespace Xam.Plugin.TabView
 
             var selectionBarBoxView = new BoxView
             {
-                VerticalOptions = LayoutOptions.EndAndExpand,
+                VerticalOptions = LayoutOptions.End,
                 BindingContext = tab,
                 HeightRequest = HeaderSelectionUnderlineThickness,
                 WidthRequest = HeaderSelectionUnderlineWidth
             };
-            selectionBarBoxView.SetBinding(IsVisibleProperty, nameof(TabItem.IsCurrent));
-            selectionBarBoxView.SetBinding(BoxView.ColorProperty, nameof(TabItem.HeaderSelectionUnderlineColor));
+            //selectionBarBoxView.SetBinding(IsVisibleProperty, nameof(TabItem.IsCurrent));
+            var underlineColorBinding = new Binding(nameof(TabItem.IsCurrent), BindingMode.OneWay, new SelectedTabHeaderToTabBackgroundColorConverter(), this);
+            //selectionBarBoxView.SetBinding(BoxView.ColorProperty, nameof(TabItem.HeaderSelectionUnderlineColor), BindingMode.OneWay, new SelectedTabHeaderToTabBackgroundColorConverter(), );
+            selectionBarBoxView.SetBinding(BoxView.BackgroundColorProperty, underlineColorBinding);
+
             selectionBarBoxView.SetBinding(WidthRequestProperty, nameof(TabItem.HeaderSelectionUnderlineWidth));
             selectionBarBoxView.SetBinding(HeightRequestProperty, nameof(TabItem.HeaderSelectionUnderlineThickness));
             selectionBarBoxView.SetBinding(HorizontalOptionsProperty,
@@ -261,9 +276,10 @@ namespace Xam.Plugin.TabView
 
             var headerItemSL = new StackLayout
             {
-                HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.FillAndExpand,
-                Children = { headerIcon, headerLabel, selectionBarBoxView }
+                Children = { headerIcon, headerLabel, selectionBarBoxView },
+                BackgroundColor = HeaderBackgroundColor,
+                Spacing = 0
             };
             var tapRecognizer = new TapGestureRecognizer();
             tapRecognizer.Tapped += (object s, EventArgs e) =>
@@ -304,7 +320,7 @@ namespace Xam.Plugin.TabView
         {
             if (bindable is TabViewControl tabViewControl)
             {
-                tabViewControl._headerContainerGrid.BackgroundColor = (Color)newValue;
+                tabViewControl._tabHeadersContainerSv.BackgroundColor = (Color)newValue;
             }
         }
         public static readonly BindableProperty HeaderBackgroundColorProperty = BindableProperty.Create(nameof(HeaderBackgroundColor), typeof(Color), typeof(TabViewControl), Color.SkyBlue, BindingMode.Default, null, HeaderBackgroundColorChanged);
@@ -359,6 +375,7 @@ namespace Xam.Plugin.TabView
                 foreach (var tab in tabViewControl.ItemSource)
                 {
                     tab.HeaderSelectionUnderlineColor = (Color)newValue;
+                    tab.TriggerPropertyChange(nameof(tab.IsCurrent));
                 }
             }
         }
@@ -543,6 +560,8 @@ namespace Xam.Plugin.TabView
                     }
                     ItemSource[position].IsCurrent = true;
                     SelectedTabIndex = position;
+
+                    Device.BeginInvokeOnMainThread(async () => await _tabHeadersContainerSv.ScrollToAsync(_headerContainerGrid.Children[position], ScrollToPosition.MakeVisible, false));
                 }
             }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
@@ -13,6 +14,11 @@ namespace Xam.Plugin.TabView
         public TabItem()
         {
             //Parameterless constructor required for xaml instantiation.
+        }
+
+        public void TriggerPropertyChange(string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
         }
 
         public TabItem(string headerText, View content, ImageSource headerIcon = null)
@@ -65,7 +71,7 @@ namespace Xam.Plugin.TabView
             set { SetValue(HeaderTextColorProperty, value); }
         }
 
-        public static readonly BindableProperty HeaderSelectionUnderlineColorProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineColor), typeof(Color), typeof(TabItem), Color.White);
+        public static readonly BindableProperty HeaderSelectionUnderlineColorProperty = BindableProperty.Create(nameof(HeaderSelectionUnderlineColor), typeof(Color), typeof(TabItem), Color.Transparent);
         public Color HeaderSelectionUnderlineColor
         {
             get => (Color)GetValue(HeaderSelectionUnderlineColorProperty);
