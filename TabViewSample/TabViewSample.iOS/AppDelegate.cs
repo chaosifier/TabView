@@ -22,10 +22,8 @@ namespace TabViewSample.iOS
         //
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
+            global::Xamarin.Forms.Forms.SetFlags("CarouselView_Experimental");
             global::Xamarin.Forms.Forms.Init();
-
-            // Initialize CarouselView
-            CarouselViewRenderer.Init();
 
             LoadApplication(new App());
 

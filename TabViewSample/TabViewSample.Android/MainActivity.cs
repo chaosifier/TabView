@@ -1,12 +1,11 @@
 ﻿using System;
-
+using Android;
 using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
-using CarouselView.FormsPlugin.Android;
 
 namespace TabViewSample.Droid
 {
@@ -15,15 +14,11 @@ namespace TabViewSample.Droid
     {
         protected override void OnCreate(Bundle bundle)
         {
-            TabLayoutResource = Resource.Layout.Tabbar;
-            ToolbarResource = Resource.Layout.Toolbar;
-
             base.OnCreate(bundle);
-
+            
+            global:Xamarin.Forms.Forms.SetFlags("CarouselView_Experimental");
+            
             global::Xamarin.Forms.Forms.Init(this, bundle);
-
-            // Initialize CarouselView
-            CarouselViewRenderer.Init();
 
             LoadApplication(new App());
         }

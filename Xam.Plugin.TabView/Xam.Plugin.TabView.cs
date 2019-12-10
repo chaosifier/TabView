@@ -1,9 +1,9 @@
-﻿using CarouselView.FormsPlugin.Abstractions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using Xam.Plugin.TabView.Converters;
 using Xamarin.Forms;
 
@@ -18,13 +18,7 @@ namespace Xam.Plugin.TabView
         public int NewPosition { get; set; }
         public int OldPosition { get; set; }
     }
-
-    public class PositionChangedEventArgs : EventArgs
-    {
-        public int NewPosition { get; set; }
-        public int OldPosition { get; set; }
-    }
-
+    
     static class TabDefaults
     {
         public static readonly Color DefaultColor = Color.White;
@@ -36,8 +30,9 @@ namespace Xam.Plugin.TabView
     {
         private StackLayout _mainContainerSL;
         private Grid _headerContainerGrid;
-        private CarouselViewControl _carouselView;
+        private CarouselView _carouselView;
         private ScrollView _tabHeadersContainerSv;
+        private ConstructorInfo _positionChangedEventArgsInfo;
 
         public event PositionChangingEventHandler PositionChanging;
         public event PositionChangedEventHandler PositionChanged;
@@ -124,10 +119,10 @@ namespace Xam.Plugin.TabView
                 if (positionChangingArgs != null && positionChangingArgs.Canceled)
                 {
                     _supressCarouselViewPositionChangedEvent = true;
-                    _carouselView.PositionSelected -= _carouselView_PositionSelected;
+                    _carouselView.PositionChanged -= _carouselView_PositionSelected;
                     _carouselView.PropertyChanged -= _carouselView_PropertyChanged;
                     _carouselView.Position = SelectedTabIndex;
-                    _carouselView.PositionSelected += _carouselView_PositionSelected;
+                    _carouselView.PositionChanged += _carouselView_PositionSelected;
                     _carouselView.PropertyChanged += _carouselView_PropertyChanged;
                     _supressCarouselViewPositionChangedEvent = false;
                 }
@@ -158,18 +153,23 @@ namespace Xam.Plugin.TabView
                 HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
-            _carouselView = new CarouselViewControl
+            _carouselView = new CarouselView()
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 VerticalOptions = LayoutOptions.FillAndExpand,
                 HeightRequest = ContentHeight,
-                ShowArrows = false,
-                ShowIndicators = false,
-                BindingContext = this
+                BindingContext = this,
+                ItemTemplate = new DataTemplate(() =>
+                {
+                    ContentView c = new ContentView();
+                    c.SetBinding(ContentView.ContentProperty, "Content");
+                    return c;
+                })
             };
-
+            _positionChangedEventArgsInfo = typeof(PositionChangedEventArgs).GetTypeInfo().DeclaredConstructors.First();
+            
             _carouselView.PropertyChanged += _carouselView_PropertyChanged;
-            _carouselView.PositionSelected += _carouselView_PositionSelected;
+            _carouselView.PositionChanged += _carouselView_PositionSelected;
 
             _mainContainerSL = new StackLayout
             {
@@ -199,11 +199,11 @@ namespace Xam.Plugin.TabView
             }
         }
 
-        private void _carouselView_PositionSelected(object sender, PositionSelectedEventArgs e)
+        private void _carouselView_PositionSelected(object sender, PositionChangedEventArgs e)
         {
-            if (_carouselView.Position != e.NewValue || SelectedTabIndex != e.NewValue)
+            if (_carouselView.Position != e.CurrentPosition || SelectedTabIndex != e.CurrentPosition)
             {
-                SetPosition(e.NewValue);
+                SetPosition(e.CurrentPosition);
             }
         }
 
@@ -291,7 +291,7 @@ namespace Xam.Plugin.TabView
             };
             headerItemSL.GestureRecognizers.Add(tapRecognizer);
             _headerContainerGrid.Children.Add(headerItemSL, _headerContainerGrid.ColumnDefinitions.Count - 1, 0);
-            _carouselView.ItemsSource = ItemSource.Select(t => t.Content);
+            _carouselView.ItemsSource = ItemSource;
         }
 
         #region IsSwipingEnabled
@@ -548,9 +548,9 @@ namespace Xam.Plugin.TabView
             {
                 if (_carouselView.Position != position || initialRun)
                 {
-                    _carouselView.PositionSelected -= _carouselView_PositionSelected;
+                    _carouselView.PositionChanged -= _carouselView_PositionSelected;
                     _carouselView.Position = position;
-                    _carouselView.PositionSelected += _carouselView_PositionSelected;
+                    _carouselView.PositionChanged += _carouselView_PositionSelected;
                 }
                 if (oldPosition != position)
                 {
@@ -565,11 +565,9 @@ namespace Xam.Plugin.TabView
                 }
             }
 
-            var positionChangedArgs = new PositionChangedEventArgs()
-            {
-                NewPosition = SelectedTabIndex,
-                OldPosition = oldPosition
-            };
+            var positionChangedArgs = _positionChangedEventArgsInfo.Invoke(
+                new object[] { oldPosition, SelectedTabIndex }) as PositionChangedEventArgs;
+            
             OnPositionChanged(positionChangedArgs);
         }
 
@@ -623,7 +621,8 @@ namespace Xam.Plugin.TabView
                 _headerContainerGrid.Children.RemoveAt(_headerContainerGrid.Children.Count - 1);
                 _headerContainerGrid.ColumnDefinitions.Remove(_headerContainerGrid.ColumnDefinitions.Last());
             }
-            _carouselView.ItemsSource = ItemSource.Select(t => t.Content);
+
+            _carouselView.ItemsSource = ItemSource;
             SelectedTabIndex = position >= 0 && position < ItemSource.Count ? position : ItemSource.Count - 1;
         }
     }
