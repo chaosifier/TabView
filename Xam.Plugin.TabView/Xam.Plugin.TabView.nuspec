@@ -22,8 +22,7 @@
     <tags>xamarin forms android ios uwp tabview tab control plugin chaosifier xam</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="CarouselView.FormsPlugin" version="5.2.0" exclude="Build,Analyzers" />
-        <dependency id="Xamarin.Forms" version="3.1.0.583944" exclude="Build,Analyzers" />
+        <dependency id="Xamarin.Forms" version="4.4.0.991220-pre3" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
