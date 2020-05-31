@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+<package >
   <metadata>
-    <id>Xam.Plugin.TabView</id>
-    <version>1.0.5</version>
-    <title>Xam.Plugin.TabView</title>
-    <authors>Sagar Dahal</authors>
-    <owners>Sagar Dahal</owners>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>https://github.com/chaosifier/TabView/blob/master/LICENSE</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/chaosifier/TabView</projectUrl>
     <iconUrl>https://sagardahal.info.np/images/sd.png</iconUrl>
-    <description>TabView Control for Xamarin.Forms.</description>
+    <description>$description$</description>
     <summary>TabView Control for Xamarin.Forms.</summary>
-    <releaseNotes>- Added tabs header scroll behavior when tabs overflow
-- Added IsSwipingEnabled bindable property
-- Updated to .NET Standard 2.0
-- Delayed tab header change issue fixed
-- Issues related to inconsistent header heights fixed</releaseNotes>
-    <copyright>Copyright 2019</copyright>
-    <language>en-US</language>
+    <releaseNotes>
+      - Added support for header header and body item templates binding
+      - Added tabs header scroll behavior when tabs overflow
+      - Added IsSwipingEnabled bindable property
+      - Updated to .NET Standard 2.0
+      - Delayed tab header change issue fixed
+      - Issues related to inconsistent header heights fixed
+    </releaseNotes>
+    <copyright>Copyright 2020</copyright>
     <tags>xamarin forms android ios uwp tabview tab control plugin chaosifier xam</tags>
     <dependencies>
-      <group targetFramework=".NETStandard2.0">
-        <dependency id="CarouselView.FormsPlugin" version="5.2.0" exclude="Build,Analyzers" />
-        <dependency id="Xamarin.Forms" version="3.1.0.583944" exclude="Build,Analyzers" />
+      <group>
+        <dependency id="CarouselView.FormsPlugin" version="5.2.0" />
+        <dependency id="Xamarin.Forms" version="3.1.0.583944" />
       </group>
     </dependencies>
   </metadata>

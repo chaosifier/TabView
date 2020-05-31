@@ -261,7 +261,7 @@ namespace Xam.Plugin.TabView
             selectionBarBoxView.SetBinding(WidthRequestProperty, nameof(TabItem.HeaderSelectionUnderlineWidth));
             selectionBarBoxView.SetBinding(HeightRequestProperty, nameof(TabItem.HeaderSelectionUnderlineThickness));
             selectionBarBoxView.SetBinding(HorizontalOptionsProperty,
-                                           nameof(TabItem.HeaderSelectionUnderlineWidthProperty),
+                                           nameof(TabItem.HeaderSelectionUnderlineWidth),
                                            converter: new DoubleToLayoutOptionsConverter());
 
             selectionBarBoxView.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>

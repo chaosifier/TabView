@@ -11,6 +11,13 @@ namespace TabViewSample.ViewModels
 {
     public class TemplatedItemSourceSamplePageViewModel : ObservableBase
     {
+        private bool _enableSwipe;
+        public bool EnableSwipe
+        {
+            get { return _enableSwipe; }
+            set { SetProperty(ref _enableSwipe, value); }
+        }
+
         private ObservableCollection<AnimalCategory> _animalCategories;
         public ObservableCollection<AnimalCategory> AnimalCategories
         {
@@ -18,23 +25,15 @@ namespace TabViewSample.ViewModels
             set { SetProperty(ref _animalCategories, value); }
         }
 
-        private int _selectedCategoryIndex;
-        public int SelectedCategoryIndex
-        {
-            get { return _selectedCategoryIndex; }
-            set { SetProperty(ref _selectedCategoryIndex, value); }
-        }
-
         public TemplatedItemSourceSamplePageViewModel()
         {
-            SelectedCategoryIndex = 1;
-
+            EnableSwipe = false;
             AnimalCategories = new ObservableCollection<AnimalCategory>();
             AnimalCategories.Add(new AnimalCategory()
             {
                 TabViewControlTabItemTitle = "Mammals",
                 TabViewControlTabItemIconSource = "icon.png",
-                Animals  = new ObservableCollection<string>()
+                Animals = new ObservableCollection<string>()
                 {
                     "Elephant",
                     "Rabbit",

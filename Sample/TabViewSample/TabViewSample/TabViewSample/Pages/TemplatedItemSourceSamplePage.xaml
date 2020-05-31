@@ -17,6 +17,7 @@
             <tabview:TabViewControl
                 HeaderBackgroundColor="Black"
                 HorizontalOptions="FillAndExpand"
+                IsSwipeEnabled="{Binding EnableSwipe}"
                 TemplatedItemSource="{Binding AnimalCategories}"
                 VerticalOptions="FillAndExpand">
                 <tabview:TabViewControl.TabHeaderItemTemplate>
