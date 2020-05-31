@@ -1,5 +1,7 @@
 ﻿using CarouselView.FormsPlugin.Abstractions;
+using Neemacademy.CustomControls.Xam.Plugin.TabView;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -73,6 +75,7 @@ namespace Xam.Plugin.TabView
             }
         }
 
+        //refactor
         void ItemSource_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.NewItems != null)
@@ -167,7 +170,6 @@ namespace Xam.Plugin.TabView
                 ShowIndicators = false,
                 BindingContext = this
             };
-
             _carouselView.PropertyChanged += _carouselView_PropertyChanged;
             _carouselView.PositionSelected += _carouselView_PositionSelected;
 
@@ -187,7 +189,7 @@ namespace Xam.Plugin.TabView
         protected override void OnBindingContextChanged()
         {
             base.OnBindingContextChanged();
-            if (BindingContext != null)
+            if (BindingContext != null && ItemSource != null && ItemTemplate == null)
             {
                 foreach (var tab in ItemSource)
                 {
@@ -274,13 +276,22 @@ namespace Xam.Plugin.TabView
                 }
             };
 
-            var headerItemSL = new StackLayout
+            View headerItemView;
+            if (TabHeaderItemTemplate != null)
             {
-                VerticalOptions = LayoutOptions.FillAndExpand,
-                Children = { headerIcon, headerLabel, selectionBarBoxView },
-                BackgroundColor = HeaderBackgroundColor,
-                Spacing = 0
-            };
+                headerItemView = (View)TabHeaderItemTemplate.CreateContent();
+                headerItemView.BindingContext = tab;
+            }
+            else
+            {
+                headerItemView = new StackLayout
+                {
+                    VerticalOptions = LayoutOptions.FillAndExpand,
+                    Children = { headerIcon, headerLabel, selectionBarBoxView },
+                    BackgroundColor = HeaderBackgroundColor
+                };
+            }
+
             var tapRecognizer = new TapGestureRecognizer();
             tapRecognizer.Tapped += (object s, EventArgs e) =>
             {
@@ -289,25 +300,104 @@ namespace Xam.Plugin.TabView
                 SetPosition(capturedIndex);
                 _supressCarouselViewPositionChangedEvent = false;
             };
-            headerItemSL.GestureRecognizers.Add(tapRecognizer);
-            _headerContainerGrid.Children.Add(headerItemSL, _headerContainerGrid.ColumnDefinitions.Count - 1, 0);
+            headerItemView.GestureRecognizers.Add(tapRecognizer);
+            _headerContainerGrid.Children.Add(headerItemView, _headerContainerGrid.ColumnDefinitions.Count - 1, 0);
             _carouselView.ItemsSource = ItemSource.Select(t => t.Content);
         }
 
-        #region IsSwipingEnabled
-        public bool IsSwipingEnabled
+        #region ItemTemplate
+        public DataTemplate ItemTemplate
         {
-            get { return (bool)GetValue(IsSwipingEnabledProperty); }
-            set { SetValue(IsSwipingEnabledProperty, value); }
+            get { return (DataTemplate)GetValue(ItemTemplateProperty); }
+            set { SetValue(ItemTemplateProperty, value); }
         }
-        private static void IsSwipingEnabledChanged(BindableObject bindable, object oldValue, object newValue)
+        private static void ItemTemplateChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is TabViewControl tabViewControl)
+            {
+                tabViewControl.setTabViewItems();
+            }
+        }
+        public static readonly BindableProperty ItemTemplateProperty = BindableProperty.Create(nameof(ItemTemplate), typeof(DataTemplate), typeof(TabViewControl), null, BindingMode.Default, null, ItemTemplateChanged);
+        #endregion
+
+        #region TabHeaderItemTemplate
+        public DataTemplate TabHeaderItemTemplate
+        {
+            get { return (DataTemplate)GetValue(TabHeaderItemTemplateProperty); }
+            set { SetValue(TabHeaderItemTemplateProperty, value); }
+        }
+        private static void TabHeaderItemTemplateChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is TabViewControl tabViewControl)
+            {
+                tabViewControl.setTabViewItems();
+            }
+        }
+        public static readonly BindableProperty TabHeaderItemTemplateProperty = BindableProperty.Create(nameof(TabHeaderItemTemplate), typeof(DataTemplate), typeof(TabViewControl), null, BindingMode.Default, null, TabHeaderItemTemplateChanged);
+        #endregion
+
+        #region TemplatedItemSource
+        public IEnumerable<ITabViewControlTabItem> TemplatedItemSource
+        {
+            get => (IEnumerable<ITabViewControlTabItem>)GetValue(TemplatedItemSourceProperty);
+            set { SetValue(TemplatedItemSourceProperty, value); }
+        }
+        private static void TemplatedItemSourceChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is TabViewControl tabViewControl)
+            {
+                tabViewControl.setTabViewItems();
+            }
+        }
+        public static readonly BindableProperty TemplatedItemSourceProperty = BindableProperty.Create(nameof(TemplatedItemSource), typeof(IEnumerable<ITabViewControlTabItem>), typeof(TabViewControl), null, BindingMode.Default, null, TemplatedItemSourceChanged);
+        #endregion
+
+        private void setTabViewItems()
+        {
+            if (ItemTemplate == null || TemplatedItemSource == null || ItemSource == null)
+            {
+                return;
+            }
+
+            _headerContainerGrid.Children.Clear();
+            _headerContainerGrid.ColumnDefinitions.Clear();
+            ItemSource.Clear();
+
+            foreach (var itm in TemplatedItemSource)
+            {
+                setTabViewItem(itm);
+            }
+        }
+
+        private void setTabViewItem(ITabViewControlTabItem itm)
+        {
+            DataTemplate itemTemplate = ItemTemplate;
+
+            if (itemTemplate == null)
+                return;
+
+            View carouselViewItem = (View)itemTemplate.CreateContent();
+            carouselViewItem.BindingContext = itm;
+
+            var newTabItem = new TabItem(itm.TabViewControlTabItemTitle, carouselViewItem, itm.TabViewControlTabItemIconSource);
+            ItemSource.Add(newTabItem);
+        }
+
+        #region IsSwipeEnabled
+        public bool IsSwipeEnabled
+        {
+            get { return (bool)GetValue(IsSwipeEnabledProperty); }
+            set { SetValue(IsSwipeEnabledProperty, value); }
+        }
+        private static void IsSwipeEnabledChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is TabViewControl tabViewControl)
             {
                 tabViewControl._carouselView.IsSwipeEnabled = (bool)newValue;
             }
         }
-        public static readonly BindableProperty IsSwipingEnabledProperty = BindableProperty.Create(nameof(IsSwipingEnabled), typeof(bool), typeof(TabViewControl), true, BindingMode.Default, null, IsSwipingEnabledChanged);
+        public static readonly BindableProperty IsSwipeEnabledProperty = BindableProperty.Create(nameof(IsSwipeEnabled), typeof(bool), typeof(TabViewControl), true, BindingMode.Default, null, IsSwipeEnabledChanged);
         #endregion
 
         #region HeaderBackgroundColor
@@ -440,6 +530,25 @@ namespace Xam.Plugin.TabView
         public static readonly BindableProperty HeaderTabTextFontSizeProperty = BindableProperty.Create(nameof(HeaderTabTextFontSize), typeof(double), typeof(TabViewControl), (double)14, BindingMode.Default, null, HeaderTabTextFontSizeChanged);
         #endregion
 
+        #region TabHeaderSpacing
+        [Xamarin.Forms.TypeConverter(typeof(FontSizeConverter))]
+        public double TabHeaderSpacing
+        {
+            get { return (double)GetValue(TabHeaderSpacingProperty); }
+            set { SetValue(TabHeaderSpacingProperty, value); }
+        }
+        private static void TabHeaderSpacingChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is TabViewControl tabViewControl)
+            {
+                double colSpacing;
+                double.TryParse(oldValue?.ToString(), out colSpacing);
+                tabViewControl._headerContainerGrid.ColumnSpacing = colSpacing;
+            }
+        }
+        public static readonly BindableProperty TabHeaderSpacingProperty = BindableProperty.Create(nameof(TabHeaderSpacing), typeof(double), typeof(TabViewControl), (double)14, BindingMode.Default, null, TabHeaderSpacingChanged);
+        #endregion
+
         #region HeaderTabTextFontFamily
         public string HeaderTabTextFontFamily
         {
@@ -513,7 +622,7 @@ namespace Xam.Plugin.TabView
             if (bindable is TabViewControl tabViewControl && tabViewControl.ItemSource != null &&
                 tabViewControl._carouselView.Position != (int)newValue)
             {
-                tabViewControl.SetPosition((int)newValue);
+                tabViewControl.SetPosition((int)newValue, true);
             }
         }
         public int SelectedTabIndex
@@ -523,9 +632,9 @@ namespace Xam.Plugin.TabView
         }
         #endregion
 
-        public void SetPosition(int position, bool initialRun = false)
+        public void SetPosition(int position, bool forced = false)
         {
-            if (SelectedTabIndex == position && !initialRun)
+            if (SelectedTabIndex == position && !forced || ItemSource.Count == 0)
             {
                 return;
             }
@@ -544,21 +653,25 @@ namespace Xam.Plugin.TabView
                 return;
             }
 
-            if ((position >= 0 && position < ItemSource.Count) || initialRun)
+            if ((position >= 0 && position < ItemSource.Count) || forced)
             {
-                if (_carouselView.Position != position || initialRun)
+                if (_carouselView.Position != position || forced)
                 {
                     _carouselView.PositionSelected -= _carouselView_PositionSelected;
                     _carouselView.Position = position;
                     _carouselView.PositionSelected += _carouselView_PositionSelected;
                 }
-                if (oldPosition != position)
+                if (oldPosition != position || forced)
                 {
-                    if (oldPosition < ItemSource.Count)
+                    for (int i = 0; i < ItemSource.Count; i++)
                     {
-                        ItemSource[oldPosition].IsCurrent = false;
+                        ItemSource[i].IsCurrent = i == position;
                     }
-                    ItemSource[position].IsCurrent = true;
+
+                    if (ItemSource[position].Content?.BindingContext is ITabViewControlTabItem tabViewItem)
+                    {
+                        tabViewItem.TabViewControlTabItemFocus();
+                    }
                     SelectedTabIndex = position;
 
                     Device.BeginInvokeOnMainThread(async () => await _tabHeadersContainerSv.ScrollToAsync(_headerContainerGrid.Children[position], ScrollToPosition.MakeVisible, false));

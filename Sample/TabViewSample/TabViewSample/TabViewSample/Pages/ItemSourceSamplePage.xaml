@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TabViewSample.Pages.ItemSourceSamplePage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tabview="clr-namespace:Xam.Plugin.TabView;assembly=Xam.Plugin.TabView"
+    mc:Ignorable="d">
+    <ContentPage.Content>
+        <StackLayout>
+            <tabview:TabViewControl
+                HeaderBackgroundColor="SkyBlue"
+                HeaderSelectionUnderlineColor="White"
+                HeaderTabTextColor="White"
+                HeaderTabTextFontAttributes="Bold"
+                HorizontalOptions="FillAndExpand"
+                IsSwipeEnabled="True"
+                TabHeaderSpacing="100"
+                VerticalOptions="FillAndExpand">
+                <tabview:TabViewControl.ItemSource>
+                    <tabview:TabItem HeaderIcon="icon.png" HeaderText="Tab 1">
+                        <Image
+                            Aspect="AspectFit"
+                            HorizontalOptions="CenterAndExpand"
+                            Source="monkey.png"
+                            VerticalOptions="CenterAndExpand" />
+                    </tabview:TabItem>
+                    <tabview:TabItem HeaderIcon="icon.png" HeaderText="Tab 2">
+                        <Label
+                            FontSize="Large"
+                            HorizontalOptions="Center"
+                            Text="Hello There!"
+                            VerticalOptions="Center" />
+                    </tabview:TabItem>
+                    <tabview:TabItem HeaderIcon="icon.png" HeaderText="Tab 3">
+                        <ListView>
+                            <ListView.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>mono</x:String>
+                                    <x:String>monodroid</x:String>
+                                    <x:String>monotouch</x:String>
+                                    <x:String>monorail</x:String>
+                                    <x:String>monodevelop</x:String>
+                                    <x:String>monotone</x:String>
+                                    <x:String>monopoly</x:String>
+                                    <x:String>monomodal</x:String>
+                                    <x:String>mononucleosis</x:String>
+                                </x:Array>
+                            </ListView.ItemsSource>
+                        </ListView>
+                    </tabview:TabItem>
+                    <tabview:TabItem HeaderIcon="icon.png" HeaderText="Tab 3">
+                        <Label
+                            FontSize="Large"
+                            HorizontalOptions="Center"
+                            Text="Hello There!"
+                            VerticalOptions="Center" />
+                    </tabview:TabItem>
+                    <tabview:TabItem HeaderIcon="icon.png" HeaderText="A Long Tab Title">
+                        <Label
+                            FontSize="Large"
+                            HorizontalOptions="Center"
+                            Text="Tab 4 With Long Title"
+                            VerticalOptions="Center" />
+                    </tabview:TabItem>
+                </tabview:TabViewControl.ItemSource>
+            </tabview:TabViewControl>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

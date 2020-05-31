@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TabViewSample.Pages.TemplatedItemSourceSamplePage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tabview="clr-namespace:Xam.Plugin.TabView;assembly=Xam.Plugin.TabView"
+    mc:Ignorable="d">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label
+                Padding="15"
+                FontSize="Medium"
+                HorizontalOptions="Center"
+                Text="TabViewControl with homogeneous tab items" />
+            <tabview:TabViewControl
+                HeaderBackgroundColor="Black"
+                HorizontalOptions="FillAndExpand"
+                TemplatedItemSource="{Binding AnimalCategories}"
+                VerticalOptions="FillAndExpand">
+                <tabview:TabViewControl.TabHeaderItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Padding="10,10,10,0">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalTextAlignment="Center"
+                                Text="{Binding HeaderText}">
+                                <Label.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding IsCurrent}"
+                                        TargetType="Label"
+                                        Value="True">
+                                        <Setter Property="TextColor" Value="White" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding IsCurrent}"
+                                        TargetType="Label"
+                                        Value="False">
+                                        <Setter Property="TextColor" Value="Gray" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <BoxView
+                                BackgroundColor="Yellow"
+                                HeightRequest="5"
+                                HorizontalOptions="FillAndExpand"
+                                IsVisible="{Binding IsCurrent}" />
+                        </StackLayout>
+                    </DataTemplate>
+                </tabview:TabViewControl.TabHeaderItemTemplate>
+                <tabview:TabViewControl.ItemTemplate>
+                    <DataTemplate>
+                        <ListView ItemsSource="{Binding Animals}" />
+                    </DataTemplate>
+                </tabview:TabViewControl.ItemTemplate>
+            </tabview:TabViewControl>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
