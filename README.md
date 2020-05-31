@@ -2,7 +2,7 @@
 TabView control for Xamarin.Forms.<br />
 Requires <a href="https://github.com/alexrainman/CarouselView/">CarouselView</a> plugin.
 
-Also available on NuGet : https://www.nuget.org/packages/Xam.Plugin.TabView [![NuGet](https://img.shields.io/badge/NUGET-1.0.4-green.svg)](https://www.nuget.org/packages/Xam.Plugin.TabView)
+Also available on NuGet : https://www.nuget.org/packages/Xam.Plugin.TabView [![NuGet](https://img.shields.io/badge/NUGET-1.1.1-green.svg)](https://www.nuget.org/packages/Xam.Plugin.TabView)
 
 Make sure to initialize the CarouselView plugin first before using TabView.
 To do so, in your iOS and Android projects call:
@@ -30,6 +30,22 @@ Bindable properties:
 - HeaderTabTextFontSize
 - HeaderTabTextFontFamily
 - HeaderTabTextFontAttributes
+- IsSwipeEnabled
+- TabHeaderSpacing
+- ItemSource (Collection of TabItem)
+- TemplatedItemSource (Collection of ITabViewControlTabItem)
+- ItemTemplate (works along with TemplatedItemSource)
+- TabHeaderItemTemplate (works along with TemplatedItemSource)
+
+
+Note : 
+- ItemSource and TemplatedItemSource cannot be used together.
+- TabHeaderItemTemplate only works along with TemplatedItemSource.
+- TemplatedItemSource items must implement ITabViewControlTabItem
+- ITabViewControlTabItem interface members :
+    - TabViewControlTabItemFocus() : called when tab receives focus, could be used for lazy loading of data in each tab.
+    - TabViewControlTabItemIconSource : icon to set for the tab
+    - TabViewControlTabItemTitle : title to set for the tab
 
 
 Events:
@@ -44,7 +60,6 @@ Functions:
 - SelectLast
 - AddTab
 - RemoveTab
-
 
 Screenshots:
 
