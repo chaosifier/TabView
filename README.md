@@ -36,6 +36,8 @@ Bindable properties:
 - TemplatedItemSource (Collection of ITabViewControlTabItem)
 - ItemTemplate (works along with TemplatedItemSource)
 - TabHeaderItemTemplate (works along with TemplatedItemSource)
+- SelectedTabIndex
+- TabSizeOption (Sets tab header sizing strategy. Accepts GridLength, namely : Auto, *, some fix width value)
 
 
 Note : 
