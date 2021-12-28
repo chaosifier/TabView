@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xamarin.Forms;
 
-namespace Neemacademy.CustomControls.Xam.Plugin.TabView
+namespace Xam.Plugin.TabView
 {
     public interface ITabViewControlTabItem
     {
