@@ -1,5 +1,4 @@
 ﻿using CarouselView.FormsPlugin.Abstractions;
-using Neemacademy.CustomControls.Xam.Plugin.TabView;
 using System;
 using System.Collections;
 using System.Collections.Generic;
